@@ -10,5 +10,3 @@ if (!process.env.DATABASE_URL) {
 const queryClient = postgres(process.env.DATABASE_URL);
 
 export const db = drizzle(queryClient, { schema }); // 修正这一行
-
-const result = await db.execute('select 1');

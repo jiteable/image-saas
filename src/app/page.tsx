@@ -3,10 +3,10 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { db } from "@/server/db/db";
+import { UserInfo, SessionProvider } from "./UserInfo";
 
 export default async function Home() { // 添加 async 关键字
-  // 调用 findMany() 函数来执行查询
-  const users = await db.query.Users.findMany(); // 添加 ()
+
 
   return (
     <div className="h-screen flex justify-center items-center">
@@ -19,10 +19,10 @@ export default async function Home() { // 添加 async 关键字
         ></Textarea>
         <Button type="submit">Submit</Button>
       </form>
+      <SessionProvider>
+        <UserInfo></UserInfo>
+      </SessionProvider>
 
-      {
-        users.map((user) => <div key={user.id}>{user.name}</div>) // 修正 JSX 语法
-      }
     </div>
   );
 }
