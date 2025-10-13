@@ -4,9 +4,16 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { db } from "@/server/db/db";
 import { UserInfo, SessionProvider } from "./UserInfo";
+import { getServerSession } from "next-auth";
+import { redirect } from "next/navigation";
 
 export default async function Home() { // 添加 async 关键字
 
+  const session = await getServerSession()
+
+  if (!session) {
+    redirect("/api/auth/signin")
+  }
 
   return (
     <div className="h-screen flex justify-center items-center">
