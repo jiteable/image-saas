@@ -7,6 +7,8 @@ import {
   PutObjectCommandInput
 } from "@aws-sdk/client-s3"
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner"
+import { db, files } from "../db/schema";
+import { v4 as uuid } from 'uuid'
 
 export const fileRoutes = router({
   createPresignedUrl: protectedProcedure
@@ -62,6 +64,55 @@ export const fileRoutes = router({
         method: "PUT" as const
       }
 
+    }),
+
+  saveFile: protectedProcedure
+    .input(
+      z.object({
+        name: z.string(),
+        path: z.string(),
+        type: z.string(),
+      }),
+    ).mutation(async ({ ctx, input }) => {
+      const { session } = ctx
+
+      const url = new URL(input.path)
+
+      const photo = await db.insert(files).values({
+        ...input,
+        path: url.pathname,
+        url: url.toString(),
+        userId: session.user.id,
+        contentType: input.type
+      }).returning() // 返回数据,数组
+
+      return photo[0]
     })
 
 })
+
+
+// router({
+//   saveFile: protectedProcedure
+//     .input(
+//       z.object({
+//         name: z.string(),
+//         path: z.string(),
+//         type: z.string(),
+//       }),
+//     ).mutation(async ({ ctx, input }) => {
+//       const { session } = ctx
+
+//       const url = new URL(input.path)
+
+//       const photo = await db.insert(files).values({
+//         ...input,
+//         path: url.pathname,
+//         url: url.toString(),
+//         userId: session.user.id,
+//         contentType: input.type
+//       }).returning() // 返回数据,数组
+
+//       return photo[0]
+//     })
+// })

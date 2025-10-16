@@ -1,9 +1,9 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import { createTRPCContext, serverCaller } from "@/utils/trpc";
 import { Uppy } from "@uppy/core"
 import AWSS3 from "@uppy/aws-s3"
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useUppyState } from "@uppy/react";
 import { trpcPureClient } from "@/utils/api"
 import { Button } from "@/components/ui/button";
@@ -27,6 +27,23 @@ export default async function Home() { // 添加 async 关键字
 
   const files = useUppyState(uppy, (s) => Object.values(s.files))
   const progress = useUppyState(uppy, (s) => s.totalProgress)
+
+  useEffect(() => {
+    const handler = (file: any, resp: any) => {
+      if (file) {
+        trpcPureClient.file.saveFile.mutate({
+          name: file.data instanceof File ? file.data.name : "test",
+          path: resp.uploadURL ?? "",
+          type: file.data.type
+        })
+      }
+    }
+    uppy.on("upload-success", handler)
+
+    return () => {
+      uppy.off("upload-success", handler)
+    }
+  }, [uppy])
 
   return (
     <div className="h-screen flex justify-center items-center">

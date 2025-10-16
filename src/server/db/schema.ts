@@ -5,11 +5,14 @@ import {
   text,
   primaryKey,
   integer,
-  date
+  date,
+  varchar,
+  uuid
 } from "drizzle-orm/pg-core"
 import postgres from "postgres"
 import { drizzle } from "drizzle-orm/postgres-js"
 import type { AdapterAccount } from "next-auth/adapters"
+import { relations } from "drizzle-orm";
 
 if (!process.env.DATABASE_URL) {
   throw new Error('DATABASE_URL is not defined in environment variables');
@@ -104,3 +107,19 @@ export const authenticators = pgTable(
     },
   ]
 )
+
+export const files = pgTable("files", {
+  id: uuid("id").primaryKey().defaultRandom(), // 添加 .defaultRandom()
+  name: varchar("name", { length: 100 }).notNull(),
+  type: varchar("type", { length: 100 }).notNull(),
+  createdAt: timestamp("created_at", { mode: "date" }).defaultNow(),
+  deletedAt: timestamp("deleted_at", { mode: "date" }),
+  path: varchar("path", { length: 1024 }).notNull(),
+  url: varchar("url", { length: 1024 }).notNull(),
+  userId: text("user_id").notNull(),
+  contentType: varchar("content_type", { length: 100 }).notNull(),
+})
+
+export const filesRelations = relations(files, ({ one }) => ({
+  files: one(users, { fields: [files.userId], references: [users.id] })
+}))
