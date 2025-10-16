@@ -10,6 +10,8 @@
   },
   "dependencies": {
     "@auth/drizzle-adapter": "^1.11.0",
+    "@aws-sdk/client-s3": "^3.911.0",
+    "@aws-sdk/s3-request-presigner": "^3.911.0",
     "@radix-ui/react-slot": "^1.2.3",
     "@tanstack/react-query": "^5.90.3",
     "@trpc/client": "^11.6.0",

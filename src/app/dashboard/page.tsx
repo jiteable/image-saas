@@ -1,24 +1,32 @@
+"use client";
+
 import { createTRPCContext, serverCaller } from "@/utils/trpc";
 import { Uppy } from "@uppy/core"
 import AWSS3 from "@uppy/aws-s3"
 import { useState } from "react";
 import { useUppyState } from "@uppy/react";
+import { trpcPureClient } from "@/utils/api"
+import { Button } from "@/components/ui/button";
 export default async function Home() { // 添加 async 关键字
 
   const [uppy] = useState<Uppy>(() => {
     const uppyInstance = new Uppy();
     uppyInstance.use(AWSS3, {
       shouldUseMultipart: false,
-      getUploadParameters() {
-        return {
-          url: "",
-        }
+      getUploadParameters(file) {
+        return trpcPureClient.file.createPresignedUrl.mutate({
+          filename:
+            file.data instanceof File ? file.data.name : "test",
+          contentType: file.data.type || "",
+          size: file.size ?? 0
+        })
       }
     })
     return uppyInstance;
   });
 
   const files = useUppyState(uppy, (s) => Object.values(s.files))
+  const progress = useUppyState(uppy, (s) => s.totalProgress)
 
   return (
     <div className="h-screen flex justify-center items-center">
@@ -58,6 +66,12 @@ export default async function Home() { // 添加 async 关键字
           </div>
         );
       })}
+      <Button
+        onClick={() => {
+          uppy.upload()
+        }}
+      > Upload</Button>
+      <div>{progress}</div>
     </div>
   );
 }
