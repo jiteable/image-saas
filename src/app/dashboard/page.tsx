@@ -5,8 +5,10 @@ import { Uppy } from "@uppy/core"
 import AWSS3 from "@uppy/aws-s3"
 import { useEffect, useState } from "react";
 import { useUppyState } from "@uppy/react";
-import { trpcPureClient } from "@/utils/api"
+import { trpcClientReact, trpcPureClient } from "@/utils/api"
 import { Button } from "@/components/ui/button";
+import { UploadButton } from "@/components/feature/UploadButton";
+import Image from "next/image";
 export default async function Home() { // 添加 async 关键字
 
   const [uppy] = useState<Uppy>(() => {
@@ -45,9 +47,34 @@ export default async function Home() { // 添加 async 关键字
     }
   }, [uppy])
 
+  const { data: fileList, isPending } = trpcClientReact.file.listFiles.useQuery()
+
   return (
-    <div className="h-screen flex justify-center items-center">
-      <label htmlFor="file-upload" className="block text-sm font-medium text-gray-700">
+    <div className="container mx-auto">
+      <div>
+        <UploadButton uppy={uppy}></UploadButton>
+        <Button
+          onClick={() => {
+            uppy.upload()
+          }}
+        > Upload</Button>
+      </div>
+      {
+        isPending && <div>Loading</div>
+      }
+      <div className="flex flex-wrap gap-4">
+        {
+          fileList?.map(file => {
+
+            const isImage = file.contentType.startsWith('image')
+
+            return <div key={file.id} className="w-56 h-56 flex justify-center items-center border">
+              {isImage ? <img src={file.path} alt={file.name} /> : <Image src="/public/unknown-file-types.png" alt="unknown-file-types"></Image>}
+            </div>
+          })
+        }
+      </div>
+      {/* <label htmlFor="file-upload" className="block text-sm font-medium text-gray-700">
         选择文件
       </label>
       <input
@@ -88,7 +115,7 @@ export default async function Home() { // 添加 async 关键字
           uppy.upload()
         }}
       > Upload</Button>
-      <div>{progress}</div>
+      <div>{progress}</div> */}
     </div>
   );
 }

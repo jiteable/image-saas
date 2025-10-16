@@ -8,7 +8,7 @@ import {
 } from "@aws-sdk/client-s3"
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner"
 import { db, files } from "../db/schema";
-import { v4 as uuid } from 'uuid'
+import { desc } from 'drizzle-orm';
 
 export const fileRoutes = router({
   createPresignedUrl: protectedProcedure
@@ -87,7 +87,13 @@ export const fileRoutes = router({
       }).returning() // 返回数据,数组
 
       return photo[0]
-    })
+    }),
+
+  listFiles: protectedProcedure.query(async () => {
+    const result = await db.select().from(files).orderBy(desc(files.createdAt));
+
+    return result
+  })
 
 })
 

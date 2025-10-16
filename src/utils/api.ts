@@ -1,9 +1,9 @@
 import { httpBatchLink, createTRPCClient } from "@trpc/client";
 import { createTRPCReact } from "@trpc/react-query";
-import type { TestRouter } from "./trpc";
-import { AppRouter } from "@/server/routes";
+import type { AppRouter } from "@/server/trip"; // 更新导入路径
 
-export const trpcClientReact = createTRPCReact<TestRouter>({});
+// 使用正确的 AppRouter 类型
+export const trpcClientReact = createTRPCReact<AppRouter>({});
 
 export const trpcClient = trpcClientReact.createClient({
   links: [

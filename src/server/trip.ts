@@ -1,6 +1,7 @@
 import { initTRPC, TRPCError } from "@trpc/server"
 import { Session } from "inspector/promises"
 import { getServerSession } from "next-auth"
+import { fileRoutes } from "./routes/file";
 
 const t = initTRPC.context().create()
 
@@ -47,5 +48,13 @@ export const protectedProcedure = withLoggerProcedure.use(withSessionMiddleware)
   })
 
 export { router }
+
+
+export const appRouter = router({
+  // 如果你有其他路由，在这里添加
+  file: fileRoutes,
+});
+
+export type AppRouter = typeof appRouter;
 
 
