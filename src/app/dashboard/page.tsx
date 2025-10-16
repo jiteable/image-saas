@@ -9,6 +9,8 @@ import { trpcClientReact, trpcPureClient } from "@/utils/api"
 import { Button } from "@/components/ui/button";
 import { UploadButton } from "@/components/feature/UploadButton";
 import Image from "next/image";
+import { Dropzone } from "@/components/feature/Dropzone";
+import { cn } from "@/lib/utils";
 export default async function Home() { // 添加 async 关键字
 
   const [uppy] = useState<Uppy>(() => {
@@ -62,18 +64,38 @@ export default async function Home() { // 添加 async 关键字
       {
         isPending && <div>Loading</div>
       }
-      <div className="flex flex-wrap gap-4">
-        {
-          fileList?.map(file => {
+      <Dropzone uppy={uppy}>
+        {(draging) => {
+          return (
+            <div className={cn("flex flex-wrap gap-4 relative", draging && "border border-dashed")}>
+              {draging && (
+                <div className="absolute inset-0 bg-secondary/30 flex justify-center items-center">
+                  Drop File Here to Upload
+                </div>
+              )}
 
-            const isImage = file.contentType.startsWith('image')
+              {fileList?.map((file) => {
+                const isImage = file.contentType.startsWith("image");
 
-            return <div key={file.id} className="w-56 h-56 flex justify-center items-center border">
-              {isImage ? <img src={file.path} alt={file.name} /> : <Image src="/public/unknown-file-types.png" alt="unknown-file-types"></Image>}
+                return (
+                  <div key={file.id} className="w-56 h-56 flex justify-center items-center border">
+                    {isImage ? (
+                      <img src={file.path} alt={file.name} />
+                    ) : (
+                      <Image
+                        src="/public/unknown-file-types.png"
+                        alt="unknown-file-types"
+                        width={64}
+                        height={64}
+                      />
+                    )}
+                  </div>
+                );
+              })}
             </div>
-          })
-        }
-      </div>
+          );
+        }}
+      </Dropzone>
       {/* <label htmlFor="file-upload" className="block text-sm font-medium text-gray-700">
         选择文件
       </label>
