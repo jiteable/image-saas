@@ -11,6 +11,7 @@ import { UploadButton } from "@/components/feature/UploadButton";
 import Image from "next/image";
 import { Dropzone } from "@/components/feature/Dropzone";
 import { cn } from "@/lib/utils";
+import { usePasteFile } from "@/hooks/usePasteFile";
 export default async function Home() { // 添加 async 关键字
 
   const [uppy] = useState<Uppy>(() => {
@@ -50,6 +51,19 @@ export default async function Home() { // 添加 async 关键字
   }, [uppy])
 
   const { data: fileList, isPending } = trpcClientReact.file.listFiles.useQuery()
+
+  usePasteFile({
+    onFilesPaste: (files) => {
+      uppy.addFiles(
+        files.map((file) => ({
+          name: file.name,
+          type: file.type,
+          data: file,
+          size: file.size,
+        }))
+      )
+    }
+  })
 
   return (
     <div className="container mx-auto">
