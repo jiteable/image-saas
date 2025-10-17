@@ -1,9 +1,20 @@
 import Uppy from "@uppy/core";
-
+import { Button } from "../ui/button";
+import { Plus } from "lucide-react"
+import { useRef } from "react";
 
 export function UploadButton({ uppy }: { uppy: Uppy }) {
+  const inputRef = useRef<HTMLInputElement | null>(null)
+
   return (
     <>
+      <Button
+        variant="ghost"
+        onClick={() => {
+          if (inputRef.current) {
+            inputRef.current.click()
+          }
+        }}><Plus /></Button>
       <label htmlFor="file-upload" className="block text-sm font-medium text-gray-700">
         选择文件
       </label>
@@ -26,6 +37,7 @@ export function UploadButton({ uppy }: { uppy: Uppy }) {
           }
         }}
         multiple
+        className="fixed left-[-10000px]"
       ></input>
     </>
   )

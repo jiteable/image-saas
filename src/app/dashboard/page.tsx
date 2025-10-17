@@ -66,14 +66,14 @@ export default async function Home() { // 添加 async 关键字
   })
 
   return (
-    <div className="container mx-auto">
-      <div>
-        <UploadButton uppy={uppy}></UploadButton>
+    <div className="container mx-auto p-2">
+      <div className="flex justify-between items-center mb-4">
         <Button
           onClick={() => {
             uppy.upload()
           }}
         > Upload</Button>
+        <UploadButton uppy={uppy}></UploadButton>
       </div>
       {
         isPending && <div>Loading</div>
