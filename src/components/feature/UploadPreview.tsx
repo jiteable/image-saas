@@ -6,6 +6,7 @@ import Image from "next/image";
 import { useState } from "react";
 import { Button } from "../ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react"
+import { LocalFileItem, RemoteFileItem } from "./FileItem";
 
 
 export function UploadPreview({ uppy }: { uppy: Uppy }) {
@@ -46,12 +47,7 @@ export function UploadPreview({ uppy }: { uppy: Uppy }) {
           <ChevronLeft />
         </Button>
         <div key={file.id} className="w-56 h-56 flex justify-center items-center">
-          {isImage ? (
-            <img src={URL.createObjectURL(file.data)} alt={file.name} />
-          ) : (
-            <Image src="/public/unknown-file-types.png" alt="unknow file type" width={100} height={100}></Image>
-          )
-          }
+          <LocalFileItem file={file.data as File}></LocalFileItem>
         </div>
         <Button variant="ghost" onClick={() => {
           if (index === files.length - 1) {

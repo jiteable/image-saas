@@ -4,7 +4,7 @@ import { trpcClientReact, trpcPureClient } from "@/utils/api"
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { useUppyState } from "@/app/dashboard/hooks/useUppyState";
-
+import { LocalFileItem, RemoteFileItem } from "./FileItem";
 export function FileList({ uppy }: { uppy: Uppy }) {
 
   const { data: fileList, isPending } = trpcClientReact.file.listFiles.useQuery()
@@ -70,16 +70,7 @@ export function FileList({ uppy }: { uppy: Uppy }) {
 
             return (
               <div key={file.id} className="w-56 h-56 flex justify-center items-center border-red-500">
-                {isImage ? (
-                  <img src={url} alt={file.name} />
-                ) : (
-                  <Image
-                    src="/public/unknown-file-types.png"
-                    alt="unknown-file-types"
-                    width={100}
-                    height={100}
-                  />
-                )}
+                <LocalFileItem file={file.data as File}></LocalFileItem>
               </div>
             );
           })
@@ -89,16 +80,7 @@ export function FileList({ uppy }: { uppy: Uppy }) {
 
           return (
             <div key={file.id} className="w-56 h-56 flex justify-center items-center border">
-              {isImage ? (
-                <img src={file.url} alt={file.name} />
-              ) : (
-                <Image
-                  src="/public/unknown-file-types.png"
-                  alt="unknown-file-types"
-                  width={100}
-                  height={100}
-                />
-              )}
+              <RemoteFileItem contentType={file.contentType} url={file.url} name={file.name}></RemoteFileItem>
             </div>
           );
         })}
