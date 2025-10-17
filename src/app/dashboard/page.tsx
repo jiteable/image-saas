@@ -12,6 +12,7 @@ import Image from "next/image";
 import { Dropzone } from "@/components/feature/Dropzone";
 import { cn } from "@/lib/utils";
 import { usePasteFile } from "@/hooks/usePasteFile";
+import { UploadPreview } from "@/components/feature/UploadPreview";
 export default async function Home() { // 添加 async 关键字
 
   const [uppy] = useState<Uppy>(() => {
@@ -29,9 +30,6 @@ export default async function Home() { // 添加 async 关键字
     })
     return uppyInstance;
   });
-
-  const files = useUppyState(uppy, (s) => Object.values(s.files))
-  const progress = useUppyState(uppy, (s) => s.totalProgress)
 
   useEffect(() => {
     const handler = (file: any, resp: any) => {
@@ -94,13 +92,13 @@ export default async function Home() { // 添加 async 关键字
                 return (
                   <div key={file.id} className="w-56 h-56 flex justify-center items-center border">
                     {isImage ? (
-                      <img src={file.path} alt={file.name} />
+                      <img src={file.url} alt={file.name} />
                     ) : (
                       <Image
                         src="/public/unknown-file-types.png"
                         alt="unknown-file-types"
-                        width={64}
-                        height={64}
+                        width={100}
+                        height={100}
                       />
                     )}
                   </div>
@@ -110,6 +108,8 @@ export default async function Home() { // 添加 async 关键字
           );
         }}
       </Dropzone>
+
+      <UploadPreview uppy={uppy}></UploadPreview>
       {/* <label htmlFor="file-upload" className="block text-sm font-medium text-gray-700">
         选择文件
       </label>

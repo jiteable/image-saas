@@ -34,6 +34,7 @@ export function UploadButton({ uppy }: { uppy: Uppy }) {
                 console.error('添加文件失败:', error);
               }
             })
+            e.target.value = ''
           }
         }}
         multiple
