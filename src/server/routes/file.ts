@@ -7,8 +7,9 @@ import {
   PutObjectCommandInput
 } from "@aws-sdk/client-s3"
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner"
-import { db, files } from "../db/schema";
-import { desc } from 'drizzle-orm';
+import { files } from "../db/schema";
+import { db } from "../db/db";
+import { desc, gt, lt, sql } from 'drizzle-orm';
 
 export const fileRoutes = router({
   createPresignedUrl: protectedProcedure
@@ -93,7 +94,26 @@ export const fileRoutes = router({
     const result = await db.select().from(files).orderBy(desc(files.createdAt));
 
     return result
-  })
+  }),
+
+  infiniteQueryFiles: protectedProcedure
+    .input(z.object({
+      cursor: z.object({
+        id: z.string(),
+        createdAt: z.string() // 明确指定 createdAt 为 string 类型
+      }).optional(),
+      limit: z.number().default(10)
+    }))
+    .query(async ({ input }) => {
+      const { cursor } = input;
+
+      const result = await db.select().from(files).limit(input.limit).where(cursor ? sql`("files"."created_at", "files"."id") < (${new Date(cursor.createdAt).toISOString()}, ${cursor.id})` : undefined).orderBy(desc(files.createdAt))
+
+      return {
+        items: result,
+        nextCursor: result.length > 0 ? { createdAt: result[result.length - 1].createdAt!, id: result[result.length - 1].id } : null,
+      }
+    })
 
 })
 

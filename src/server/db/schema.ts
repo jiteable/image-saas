@@ -13,6 +13,7 @@ import postgres from "postgres"
 import { drizzle } from "drizzle-orm/postgres-js"
 import type { AdapterAccount } from "next-auth/adapters"
 import { relations } from "drizzle-orm";
+import { index } from "drizzle-orm/pg-core";
 
 if (!process.env.DATABASE_URL) {
   throw new Error('DATABASE_URL is not defined in environment variables');
@@ -22,8 +23,6 @@ if (!process.env.DATABASE_URL) {
 const connectionString = process.env.DATABASE_URL
 const pool = postgres(connectionString, { max: 1 })
 
-export const db = drizzle(pool)
-
 export const users = pgTable("user", {
   id: text("id")
     .primaryKey()
@@ -32,7 +31,7 @@ export const users = pgTable("user", {
   email: text("email").unique(),
   emailVerified: timestamp("emailVerified", { mode: "date" }),
   image: text("image"),
-  createAt: date('create_at').defaultNow()
+  createdAt: date('create_at').defaultNow()
 })
 
 export const accounts = pgTable(
@@ -118,8 +117,12 @@ export const files = pgTable("files", {
   url: varchar("url", { length: 1024 }).notNull(),
   userId: text("user_id").notNull(),
   contentType: varchar("content_type", { length: 100 }).notNull(),
-})
+}, (table) => ({
+  cursorIdx: index('cursor_idx').on(table.id, table.createdAt)
+}))
 
 export const filesRelations = relations(files, ({ one }) => ({
   files: one(users, { fields: [files.userId], references: [users.id] })
 }))
+
+export const db = drizzle(pool);
