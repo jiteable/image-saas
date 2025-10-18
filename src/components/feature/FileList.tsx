@@ -8,9 +8,12 @@ import { inferRouterOutputs } from "@trpc/server";
 import { Button } from "../ui/button";
 import { ScrollArea } from "../ui/scroll-area";
 import { type FilesOrderByColumn } from "@/server/routes/file";
+import { DeleteFile } from "./FileItemAction";
+import { CopyUrl } from "./FileItemAction";
 
 type FileResult = inferRouterOutputs<AppRouter>['file']['listFiles']
 export function FileList({ uppy, orderBy }: { uppy: Uppy, orderBy: FilesOrderByColumn }) {
+
 
   const { data: infiniteQueryData, isPending, fetchNextPage } = trpcClientReact.file.infiniteQueryFiles.useInfiniteQuery({
     limit: 5,
@@ -18,6 +21,8 @@ export function FileList({ uppy, orderBy }: { uppy: Uppy, orderBy: FilesOrderByC
   }, {
     getNextPageParam: (resp) => resp.nextCursor
   })
+
+
 
   const filesList = infiniteQueryData ? infiniteQueryData.pages.reduce((result, page) => {
     return [...result, ...page.items]
@@ -36,7 +41,7 @@ export function FileList({ uppy, orderBy }: { uppy: Uppy, orderBy: FilesOrderByC
           path: resp.uploadURL ?? "",
           type: file.data.type
         }).then((resp) => {
-          utils.file.infiniteQueryFiles.setInfiniteData({ limit: 5 }, (prev) => {
+          utils.file.infiniteQueryFiles.setInfiniteData({ limit: 5, orderBy }, (prev) => {
             if (!prev) {
               return prev
             }
@@ -68,9 +73,7 @@ export function FileList({ uppy, orderBy }: { uppy: Uppy, orderBy: FilesOrderByC
     }
 
     uppy.on('upload', uploadProgressHandler)
-
     uppy.on("upload-success", handler)
-
     uppy.on('complete', completeHandler)
 
     return () => {
@@ -101,8 +104,31 @@ export function FileList({ uppy, orderBy }: { uppy: Uppy, orderBy: FilesOrderByC
         observer.disconnect()
       }
     }
-  })
+  }, []) // 添加依赖数组
 
+  const handleFileDelete = (id: string) => {
+    utils.file.infiniteQueryFiles.setInfiniteData(
+      { limit: 5, orderBy }, (prev) => {
+        if (!prev) {
+          return prev
+        }
+        return {
+          ...prev,
+          pages: prev.pages.map((page, index) => {
+            if (index === 0) {
+              return {
+                ...page,
+                items: page.items.filter(item => item.id !== id)
+              }
+            }
+            return page
+          })
+        }
+      }
+    )
+  }
+
+  // 将 return 语句移到函数内部
   return (
     <ScrollArea>
       {isPending && <div>Loading</div>}
@@ -124,10 +150,13 @@ export function FileList({ uppy, orderBy }: { uppy: Uppy, orderBy: FilesOrderByC
           })
         }
         {filesList?.map((file) => {
-          const isImage = file.contentType.startsWith("image");
 
           return (
             <div key={file.id} className="w-56 h-56 flex justify-center items-center border">
+              <div className="inset-0 absolute bg-background/30 opacity-0 transition-all hover:opacity-100 justify-center items-center flex">
+                <CopyUrl url={file.url}></CopyUrl>
+                <DeleteFile fileId={file.id} onDeleteSuccess={handleFileDelete}></DeleteFile>
+              </div>
               <RemoteFileItem contentType={file.contentType} url={file.url} name={file.name}></RemoteFileItem>
             </div>
           );
@@ -137,6 +166,5 @@ export function FileList({ uppy, orderBy }: { uppy: Uppy, orderBy: FilesOrderByC
         <Button variant="ghost" onClick={() => fetchNextPage()}>Load Next Page</Button>
       </div>
     </ScrollArea>
-
   )
 }

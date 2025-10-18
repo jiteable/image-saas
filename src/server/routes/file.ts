@@ -9,7 +9,7 @@ import {
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner"
 import { files } from "../db/schema";
 import { db } from "../db/db";
-import { desc, asc, sql } from 'drizzle-orm';
+import { desc, asc, sql, eq } from 'drizzle-orm';
 import { filesCanOrderByColumns } from "../db/validate-schema";
 
 const filesOrderByColumnSchema = z.object({
@@ -116,8 +116,13 @@ export const fileRoutes = router({
     .query(async ({ input }) => {
       const { cursor, limit, orderBy = { field: 'createdAt', order: "desc" } } = input;
 
-      const statement = db.select().from(files).limit(limit).where(cursor ? sql`("files"."created_at", "files"."id") < (${new Date(cursor.createdAt).toISOString()}, ${cursor.id})` : undefined)
+      const deleteFiler = isNull(files.deletedAt)
 
+      const statement = db.select().from(files).limit(limit).where(
+        cursor
+          ? sql`("files"."created_at", "files"."id") < (${new Date(cursor.createdAt).toISOString()}, ${cursor.id})`
+          : deleteFiler
+      );
       statement.orderBy(orderBy.order === 'desc' ? desc(files[orderBy.field]) : asc(files[orderBy.field]))
 
       const result = await statement
@@ -126,32 +131,13 @@ export const fileRoutes = router({
         items: result,
         nextCursor: result.length > 0 ? { createdAt: result[result.length - 1].createdAt!, id: result[result.length - 1].id } : null,
       }
-    })
+    }),
+
+  deleteFile: protectedProcedure.input(z.string()).mutation(async ({ ctx, input }) => {
+    return db.update(files).set({
+      deletedAt: new Date()
+    }).where(eq(files.id, input))
+  })
 
 })
 
-
-// router({
-//   saveFile: protectedProcedure
-//     .input(
-//       z.object({
-//         name: z.string(),
-//         path: z.string(),
-//         type: z.string(),
-//       }),
-//     ).mutation(async ({ ctx, input }) => {
-//       const { session } = ctx
-
-//       const url = new URL(input.path)
-
-//       const photo = await db.insert(files).values({
-//         ...input,
-//         path: url.pathname,
-//         url: url.toString(),
-//         userId: session.user.id,
-//         contentType: input.type
-//       }).returning() // 返回数据,数组
-
-//       return photo[0]
-//     })
-// })
