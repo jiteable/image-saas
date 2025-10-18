@@ -9,7 +9,7 @@ import {
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner"
 import { files } from "../db/schema";
 import { db } from "../db/db";
-import { desc, asc, sql, eq } from 'drizzle-orm';
+import { desc, asc, sql, eq, isNull } from 'drizzle-orm';
 import { filesCanOrderByColumns } from "../db/validate-schema";
 
 const filesOrderByColumnSchema = z.object({

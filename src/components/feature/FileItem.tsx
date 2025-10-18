@@ -28,8 +28,8 @@ export function LocalFileItem({ file }: { file: File }) {
   return <FileItem isImage={isImage} url={url} name={file.name}></FileItem>
 }
 
-export function RemoteFileItem({ contentType, name, url }: { contentType: string, name: string, url: string }) {
+export function RemoteFileItem({ contentType, name, id }: { contentType: string, name: string, id: string }) {
   const isImage = contentType.startsWith("image")
 
-  return <FileItem isImage={isImage} url={url} name={name}></FileItem>
+  return <FileItem isImage={isImage} url={`/image/${id}`} name={name}></FileItem>
 }
