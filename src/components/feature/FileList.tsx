@@ -7,12 +7,14 @@ import { LocalFileItem, RemoteFileItem } from "./FileItem";
 import { inferRouterOutputs } from "@trpc/server";
 import { Button } from "../ui/button";
 import { ScrollArea } from "../ui/scroll-area";
+import { type FilesOrderByColumn } from "@/server/routes/file";
 
 type FileResult = inferRouterOutputs<AppRouter>['file']['listFiles']
-export function FileList({ uppy }: { uppy: Uppy }) {
+export function FileList({ uppy, orderBy }: { uppy: Uppy, orderBy: FilesOrderByColumn }) {
 
   const { data: infiniteQueryData, isPending, fetchNextPage } = trpcClientReact.file.infiniteQueryFiles.useInfiniteQuery({
-    limit: 5
+    limit: 5,
+    orderBy
   }, {
     getNextPageParam: (resp) => resp.nextCursor
   })

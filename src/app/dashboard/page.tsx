@@ -11,6 +11,8 @@ import { Dropzone } from "@/components/feature/Dropzone";
 import { usePasteFile } from "@/hooks/usePasteFile";
 import { UploadPreview } from "@/components/feature/UploadPreview";
 import { FileList } from "@/components/feature/FileList";
+import { FilesOrderByColumn } from "@/server/routes/file";
+import { MoveDown, MoveUp } from "lucide-react";
 
 export default async function Home() { // 添加 async 关键字
 
@@ -47,14 +49,17 @@ export default async function Home() { // 添加 async 关键字
     }
   })
 
+  const [orderBy, setOrderBy] = useState<Exclude<FilesOrderByColumn, undefined>>({ field: "createdAt", order: 'desc' })
+
   return (
     <div className="mx-auto h-screen">
       <div className="flex container justify-between items-center h-[60px]">
-        <Button
-          onClick={() => {
-            uppy.upload()
-          }}
-        > Upload</Button>
+        <Button onClick={() => {
+          setOrderBy(current => ({
+            ...current,
+            order: current?.order === 'asc' ? 'desc' : 'asc'
+          }))
+        }}>Created At {orderBy.order === "desc" ? <MoveUp /> : <MoveDown />}</Button>
         <UploadButton uppy={uppy}></UploadButton>
       </div>
       {
@@ -68,7 +73,7 @@ export default async function Home() { // 添加 async 关键字
                 Drop File Here to Upload
               </div>)
 
-              <FileList uppy={uppy}></FileList>
+              <FileList uppy={uppy} orderBy={orderBy}></FileList>
             </>
           }
         }
@@ -117,6 +122,6 @@ export default async function Home() { // 添加 async 关键字
         }}
       > Upload</Button>
       <div>{progress}</div> */}
-    </div>
+    </div >
   );
 }

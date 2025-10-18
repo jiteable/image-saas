@@ -9,7 +9,15 @@ import {
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner"
 import { files } from "../db/schema";
 import { db } from "../db/db";
-import { desc, gt, lt, sql } from 'drizzle-orm';
+import { desc, asc, sql } from 'drizzle-orm';
+import { filesCanOrderByColumns } from "../db/validate-schema";
+
+const filesOrderByColumnSchema = z.object({
+  field: filesCanOrderByColumns.keyof(),
+  order: z.enum(['desc', 'asc']),
+}).optional()
+
+export type FilesOrderByColumn = z.infer<typeof filesOrderByColumnSchema>
 
 export const fileRoutes = router({
   createPresignedUrl: protectedProcedure
@@ -102,12 +110,17 @@ export const fileRoutes = router({
         id: z.string(),
         createdAt: z.string() // 明确指定 createdAt 为 string 类型
       }).optional(),
-      limit: z.number().default(10)
+      limit: z.number().default(10),
+      orderBy: filesOrderByColumnSchema
     }))
     .query(async ({ input }) => {
-      const { cursor } = input;
+      const { cursor, limit, orderBy = { field: 'createdAt', order: "desc" } } = input;
 
-      const result = await db.select().from(files).limit(input.limit).where(cursor ? sql`("files"."created_at", "files"."id") < (${new Date(cursor.createdAt).toISOString()}, ${cursor.id})` : undefined).orderBy(desc(files.createdAt))
+      const statement = db.select().from(files).limit(limit).where(cursor ? sql`("files"."created_at", "files"."id") < (${new Date(cursor.createdAt).toISOString()}, ${cursor.id})` : undefined)
+
+      statement.orderBy(orderBy.order === 'desc' ? desc(files[orderBy.field]) : asc(files[orderBy.field]))
+
+      const result = await statement
 
       return {
         items: result,
