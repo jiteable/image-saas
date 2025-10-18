@@ -1,17 +1,18 @@
 import { Uppy } from "@uppy/core"
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { trpcClientReact, trpcPureClient, AppRouter } from "@/utils/api"
 import { cn } from "@/lib/utils";
 import { useUppyState } from "@/app/dashboard/hooks/useUppyState";
 import { LocalFileItem, RemoteFileItem } from "./FileItem";
 import { inferRouterOutputs } from "@trpc/server";
 import { Button } from "../ui/button";
+import { ScrollArea } from "../ui/scroll-area";
 
 type FileResult = inferRouterOutputs<AppRouter>['file']['listFiles']
 export function FileList({ uppy }: { uppy: Uppy }) {
 
   const { data: infiniteQueryData, isPending, fetchNextPage } = trpcClientReact.file.infiniteQueryFiles.useInfiniteQuery({
-    limit: 3
+    limit: 5
   }, {
     getNextPageParam: (resp) => resp.nextCursor
   })
@@ -33,11 +34,22 @@ export function FileList({ uppy }: { uppy: Uppy }) {
           path: resp.uploadURL ?? "",
           type: file.data.type
         }).then((resp) => {
-          utils.file.listFiles.setData(void 0, (prev) => {
+          utils.file.infiniteQueryFiles.setInfiniteData({ limit: 5 }, (prev) => {
             if (!prev) {
               return prev
             }
-            return [resp, ...prev]
+            return {
+              ...prev,
+              pages: prev.pages.map((page, index) => {
+                if (index === 0) {
+                  return {
+                    ...page,
+                    items: [resp, ...page.items]
+                  }
+                }
+                return page
+              })
+            }
           })
         })
       }
@@ -66,10 +78,33 @@ export function FileList({ uppy }: { uppy: Uppy }) {
     }
   }, [uppy, utils])
 
+  const bottomRef = useRef<HTMLDivElement | null>(null)
+
+  useEffect(() => {
+    if (bottomRef.current) {
+      const observer = new IntersectionObserver((e) => {
+        if (e[0].intersectionRatio > 0.1) {
+          fetchNextPage()
+        }
+      }, {
+        threshold: 0.1
+      })
+
+      observer.observe(bottomRef.current)
+
+      const element = bottomRef.current
+
+      return () => {
+        observer.unobserve(element)
+        observer.disconnect()
+      }
+    }
+  })
+
   return (
-    <>
+    <ScrollArea>
       {isPending && <div>Loading</div>}
-      <div className={cn("flex flex-wrap gap-4 relative")}>
+      <div className={cn("flex flex-wrap justify-center gap-4 relative container ")}>
 
         {
           uploadingFileIDs.length > 0 && uploadingFileIDs.map((id) => {
@@ -95,10 +130,11 @@ export function FileList({ uppy }: { uppy: Uppy }) {
             </div>
           );
         })}
-
-        <Button onClick={() => fetchNextPage()}>Load Next Page</Button>
       </div>
-    </>
+      <div className={cn("flex justify-center p-8 hidden", filesList.length > 0 && "flex")} ref={bottomRef}>
+        <Button variant="ghost" onClick={() => fetchNextPage()}>Load Next Page</Button>
+      </div>
+    </ScrollArea>
 
   )
 }

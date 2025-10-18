@@ -48,8 +48,8 @@ export default async function Home() { // 添加 async 关键字
   })
 
   return (
-    <div className="container mx-auto p-2">
-      <div className="flex justify-between items-center mb-4">
+    <div className="mx-auto h-screen">
+      <div className="flex container justify-between items-center h-[60px]">
         <Button
           onClick={() => {
             uppy.upload()
@@ -60,7 +60,7 @@ export default async function Home() { // 添加 async 关键字
       {
         isPending && <div>Loading</div>
       }
-      <Dropzone uppy={uppy} className="relative">
+      <Dropzone uppy={uppy} className="relative h-[clac(100% - 60px)]">
         {
           (draging) => {
             return <> draging && (
