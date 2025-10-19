@@ -11,6 +11,8 @@ import { files } from "../db/schema";
 import { db } from "../db/db";
 import { desc, asc, sql, eq, isNull, and } from 'drizzle-orm';
 import { filesCanOrderByColumns } from "../db/validate-schema";
+import { CarTaxiFront } from "lucide-react";
+import { Input } from "@/components/ui/input";
 
 const filesOrderByColumnSchema = z.object({
   field: filesCanOrderByColumns.keyof(),
@@ -81,6 +83,7 @@ export const fileRoutes = router({
         name: z.string(),
         path: z.string(),
         type: z.string(),
+        appId: z.string()
       }),
     ).mutation(async ({ ctx, input }) => {
       const { session } = ctx
@@ -98,15 +101,24 @@ export const fileRoutes = router({
       return photo[0]
     }),
 
-  listFiles: protectedProcedure.query(async ({ ctx }) => {
-    const { session } = ctx;
+  listFiles: protectedProcedure
+    .input(z.object({ appId: z.string() }))
+    .query(async ({ ctx, input }) => {
+      const { session } = ctx;
 
-    const result = await db.select().from(files)
-      .orderBy(desc(files.createdAt))
-      .where(eq(files.userId, session.user.id));
+      const result = await db
+        .select()
+        .from(files)
+        .orderBy(desc(files.createdAt))
+        .where(
+          and(
+            eq(files.userId, session.user.id),
+            eq(files.appId, input.appId)
+          )
+        );
 
-    return result;
-  }),
+      return result;
+    }),
 
   infiniteQueryFiles: protectedProcedure
     .input(z.object({
@@ -115,20 +127,23 @@ export const fileRoutes = router({
         createdAt: z.string() // 明确指定 createdAt 为 string 类型
       }).optional(),
       limit: z.number().default(10),
-      orderBy: filesOrderByColumnSchema
+      orderBy: filesOrderByColumnSchema,
+      appId: z.string()
     }))
     .query(async ({ input, ctx }) => {
       const { cursor, limit, orderBy = { field: 'createdAt', order: "desc" } } = input;
 
       const deleteFiler = isNull(files.deletedAt)
       const userFilter = eq(files.userId, ctx.session.user.id)
+      const appFilter = eq(files.appId, input.appId)
 
       const statement = db.select().from(files).limit(limit).where(
         cursor
           ? and(sql`("files"."created_at", "files"."id") < (${new Date(cursor.createdAt).toISOString()}, ${cursor.id})`,
             deleteFiler,
-            userFilter
-          ) : and(userFilter, deleteFiler)
+            userFilter,
+            appFilter
+          ) : and(userFilter, deleteFiler, appFilter)
       );
       statement.orderBy(orderBy.order === 'desc' ? desc(files[orderBy.field]) : asc(files[orderBy.field]))
 

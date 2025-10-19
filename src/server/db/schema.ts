@@ -7,7 +7,8 @@ import {
   integer,
   date,
   varchar,
-  uuid
+  uuid,
+  unique
 } from "drizzle-orm/pg-core"
 import postgres from "postgres"
 import { drizzle } from "drizzle-orm/postgres-js"
@@ -33,6 +34,11 @@ export const users = pgTable("user", {
   image: text("image"),
   createdAt: date('create_at').defaultNow()
 })
+
+export const userSRelation = relations(users, ({ many }) => ({
+  files: many(files),
+  app: many(apps)
+}))
 
 export const accounts = pgTable(
   "account",
@@ -117,12 +123,36 @@ export const files = pgTable("files", {
   url: varchar("url", { length: 1024 }).notNull(),
   userId: text("user_id").notNull(),
   contentType: varchar("content_type", { length: 100 }).notNull(),
+  appId: uuid("app_id").notNull()
 }, (table) => ({
   cursorIdx: index('cursor_idx').on(table.id, table.createdAt)
 }))
 
 export const filesRelations = relations(files, ({ one }) => ({
-  files: one(users, { fields: [files.userId], references: [users.id] })
+  files: one(users, { fields: [files.userId], references: [users.id] }),
+  app: one(apps, { fields: [files.appId], references: [apps.id] })
 }))
+
+export const apps = pgTable(
+  "apps",
+  {
+    id: uuid("id").notNull().primaryKey().defaultRandom(),
+    name: varchar("name", { length: 100 }).notNull(),
+    description: varchar("description", { length: 500 }),
+    deletedAt: timestamp("deleted_at", { mode: "date" }),
+    createdAt: timestamp("created_at", { mode: "date" }).defaultNow(),
+    userId: text("user_id").notNull(),
+    storageId: integer("storage_id")
+  },
+  (app) => ({
+    compoundNameKey: unique().on(app.id, app.name)
+  })
+)
+
+export const appRelation = relations(apps, ({ one, many }) => ({
+  user: one(users, { fields: [apps.userId], references: [users.id] }),
+  files: many(files)
+}))
+
 
 export const db = drizzle(pool);

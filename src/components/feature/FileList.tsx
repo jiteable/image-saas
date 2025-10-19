@@ -141,10 +141,6 @@ export function FileList({ uppy, orderBy }: { uppy: Uppy, orderBy: FilesOrderByC
           uploadingFileIDs.length > 0 && uploadingFileIDs.map((id) => {
             const file = uppyFiles[id]
 
-            const isImage = file.data.type.startsWith("image");
-
-            const url = URL.createObjectURL(file.data)
-
             return (
               <div key={file.id} className="w-56 h-56 flex justify-center items-center border-red-500">
                 <LocalFileItem file={file.data as File}></LocalFileItem>
