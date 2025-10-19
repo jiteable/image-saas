@@ -134,7 +134,7 @@ export function FileList({ uppy, orderBy }: { uppy: Uppy, orderBy: FilesOrderByC
   // 将 return 语句移到函数内部
   return (
     <ScrollArea>
-      {isPending && <div>Loading</div>}
+      {isPending && <div className="text-center">Loading</div>}
       <div className={cn("flex flex-wrap justify-center gap-4 relative container ")}>
 
         {

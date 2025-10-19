@@ -1,4 +1,4 @@
-import z from "zod";
+import z, { file } from "zod";
 import { protectedProcedure, router } from "../trip"
 import { TRPCError } from "@trpc/server";
 import {
@@ -9,7 +9,7 @@ import {
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner"
 import { files } from "../db/schema";
 import { db } from "../db/db";
-import { desc, asc, sql, eq, isNull } from 'drizzle-orm';
+import { desc, asc, sql, eq, isNull, and } from 'drizzle-orm';
 import { filesCanOrderByColumns } from "../db/validate-schema";
 
 const filesOrderByColumnSchema = z.object({
@@ -98,10 +98,14 @@ export const fileRoutes = router({
       return photo[0]
     }),
 
-  listFiles: protectedProcedure.query(async () => {
-    const result = await db.select().from(files).orderBy(desc(files.createdAt));
+  listFiles: protectedProcedure.query(async ({ ctx }) => {
+    const { session } = ctx;
 
-    return result
+    const result = await db.select().from(files)
+      .orderBy(desc(files.createdAt))
+      .where(eq(files.userId, session.user.id));
+
+    return result;
   }),
 
   infiniteQueryFiles: protectedProcedure
@@ -113,15 +117,18 @@ export const fileRoutes = router({
       limit: z.number().default(10),
       orderBy: filesOrderByColumnSchema
     }))
-    .query(async ({ input }) => {
+    .query(async ({ input, ctx }) => {
       const { cursor, limit, orderBy = { field: 'createdAt', order: "desc" } } = input;
 
       const deleteFiler = isNull(files.deletedAt)
+      const userFilter = eq(files.userId, ctx.session.user.id)
 
       const statement = db.select().from(files).limit(limit).where(
         cursor
-          ? sql`("files"."created_at", "files"."id") < (${new Date(cursor.createdAt).toISOString()}, ${cursor.id})`
-          : deleteFiler
+          ? and(sql`("files"."created_at", "files"."id") < (${new Date(cursor.createdAt).toISOString()}, ${cursor.id})`,
+            deleteFiler,
+            userFilter
+          ) : and(userFilter, deleteFiler)
       );
       statement.orderBy(orderBy.order === 'desc' ? desc(files[orderBy.field]) : asc(files[orderBy.field]))
 

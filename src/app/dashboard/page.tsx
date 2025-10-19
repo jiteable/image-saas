@@ -62,7 +62,6 @@ export default async function Home() { // 添加 async 关键字
           }))
         }}>Created At {orderBy.order === "desc" ? <MoveUp /> : <MoveDown />}</Button>
         <UploadButton uppy={uppy}></UploadButton>
-        <Link href="/dashboard/a">aaa</Link>
       </div>
       {
         isPending && <div>Loading</div>
