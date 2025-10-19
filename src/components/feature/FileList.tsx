@@ -12,12 +12,13 @@ import { DeleteFile } from "./FileItemAction";
 import { CopyUrl } from "./FileItemAction";
 
 type FileResult = inferRouterOutputs<AppRouter>['file']['listFiles']
-export function FileList({ uppy, orderBy }: { uppy: Uppy, orderBy: FilesOrderByColumn }) {
+export function FileList({ uppy, orderBy, appId }: { uppy: Uppy, orderBy: FilesOrderByColumn, appId: string }) {
 
 
   const { data: infiniteQueryData, isPending, fetchNextPage } = trpcClientReact.file.infiniteQueryFiles.useInfiniteQuery({
     limit: 5,
-    orderBy
+    orderBy,
+    appId
   }, {
     getNextPageParam: (resp) => resp.nextCursor,
     refetchOnWindowFocus: false,
@@ -42,9 +43,10 @@ export function FileList({ uppy, orderBy }: { uppy: Uppy, orderBy: FilesOrderByC
         trpcPureClient.file.saveFile.mutate({
           name: file.data instanceof File ? file.data.name : "test",
           path: resp.uploadURL ?? "",
-          type: file.data.type
+          type: file.data.type,
+          appId,
         }).then((resp) => {
-          utils.file.infiniteQueryFiles.setInfiniteData({ limit: 5, orderBy }, (prev) => {
+          utils.file.infiniteQueryFiles.setInfiniteData({ limit: 5, orderBy, appId }, (prev) => {
             if (!prev) {
               return prev
             }
@@ -111,7 +113,7 @@ export function FileList({ uppy, orderBy }: { uppy: Uppy, orderBy: FilesOrderByC
 
   const handleFileDelete = (id: string) => {
     utils.file.infiniteQueryFiles.setInfiniteData(
-      { limit: 5, orderBy }, (prev) => {
+      { limit: 5, orderBy, appId }, (prev) => {
         if (!prev) {
           return prev
         }
