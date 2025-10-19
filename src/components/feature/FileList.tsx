@@ -19,7 +19,10 @@ export function FileList({ uppy, orderBy }: { uppy: Uppy, orderBy: FilesOrderByC
     limit: 5,
     orderBy
   }, {
-    getNextPageParam: (resp) => resp.nextCursor
+    getNextPageParam: (resp) => resp.nextCursor,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    refetchOnReconnect: false
   })
 
 

@@ -13,6 +13,7 @@ import { UploadPreview } from "@/components/feature/UploadPreview";
 import { FileList } from "@/components/feature/FileList";
 import { FilesOrderByColumn } from "@/server/routes/file";
 import { MoveDown, MoveUp } from "lucide-react";
+import Link from "next/link";
 
 export default async function Home() { // 添加 async 关键字
 
@@ -52,7 +53,7 @@ export default async function Home() { // 添加 async 关键字
   const [orderBy, setOrderBy] = useState<Exclude<FilesOrderByColumn, undefined>>({ field: "createdAt", order: 'desc' })
 
   return (
-    <div className="mx-auto h-screen">
+    <div className="mx-auto h-full">
       <div className="flex container justify-between items-center h-[60px]">
         <Button onClick={() => {
           setOrderBy(current => ({
@@ -61,6 +62,7 @@ export default async function Home() { // 添加 async 关键字
           }))
         }}>Created At {orderBy.order === "desc" ? <MoveUp /> : <MoveDown />}</Button>
         <UploadButton uppy={uppy}></UploadButton>
+        <Link href="/dashboard/a">aaa</Link>
       </div>
       {
         isPending && <div>Loading</div>
