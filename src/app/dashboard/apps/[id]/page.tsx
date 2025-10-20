@@ -13,6 +13,7 @@ import { UploadPreview } from "@/components/feature/UploadPreview";
 import { FileList } from "@/components/feature/FileList";
 import { FilesOrderByColumn } from "@/server/routes/file";
 import { MoveDown, MoveUp } from "lucide-react";
+import Link from "next/link";
 
 export default async function AppPage({ params: { id: appId } }: { params: { id: string } }) { // 添加 async 关键字
 
@@ -56,7 +57,14 @@ export default async function AppPage({ params: { id: appId } }: { params: { id:
             order: current?.order === 'asc' ? 'desc' : 'asc'
           }))
         }}>Created At {orderBy.order === "desc" ? <MoveUp /> : <MoveDown />}</Button>
-        <UploadButton uppy={uppy}></UploadButton>
+        <div className="flex justify-center gap-2">
+          <UploadButton uppy={uppy}></UploadButton>
+          <Button asChild>
+            <Link href="/dashboard/apps/new">
+              new App
+            </Link>
+          </Button>
+        </div>
       </div>
       <Dropzone uppy={uppy} className="relative h-[clac(100% - 60px)]">
         {
