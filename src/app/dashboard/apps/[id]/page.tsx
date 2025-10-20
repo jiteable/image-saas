@@ -26,7 +26,8 @@ export default async function AppPage({ params: { id: appId } }: { params: { id:
           filename:
             file.data instanceof File ? file.data.name : "test",
           contentType: file.data.type || "",
-          size: file.size ?? 0
+          size: file.size ?? 0,
+          appId: appId
         })
       }
     })

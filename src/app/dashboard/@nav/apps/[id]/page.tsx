@@ -11,7 +11,7 @@ export default function AppDashboardNav({ params: { id } }: { params: { id: stri
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger>
+      <DropdownMenuTrigger asChild>
         <Button variant="ghost">
           {
             isPending ? 'Loading...' : currentApp ? currentApp.name : '...'

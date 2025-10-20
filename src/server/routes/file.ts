@@ -12,6 +12,12 @@ import { db } from "../db/db";
 import { desc, asc, sql, eq, isNull, and } from 'drizzle-orm';
 import { filesCanOrderByColumns } from "../db/validate-schema";
 
+const bucketName = process.env.BUCKET_NAME;
+const apiEndpoint = process.env.API_ENDPOINT;
+const region = process.env.REGION;
+const cosSecretId = process.env.COS_SECRET_ID;
+const cosSecretKey = process.env.COS_SECRET_KEY;
+
 const filesOrderByColumnSchema = z.object({
   field: filesCanOrderByColumns.keyof(),
   order: z.enum(['desc', 'asc']),
@@ -25,16 +31,12 @@ export const fileRoutes = router({
       z.object({
         filename: z.string(),
         contentType: z.string(),
-        size: z.number()
+        size: z.number(),
+        appId: z.string()
       })
     )
     .mutation(async ({ ctx, input }) => {
       // 验证环境变量
-      const bucketName = process.env.BUCKET_NAME;
-      const apiEndpoint = process.env.API_ENDPOINT;
-      const region = process.env.REGION;
-      const cosSecretId = process.env.COS_SECRET_ID;
-      const cosSecretKey = process.env.COS_SECRET_KEY;
 
       if (!bucketName || !apiEndpoint || !region || !cosSecretId || !cosSecretKey) {
         throw new TRPCError({
@@ -47,19 +49,40 @@ export const fileRoutes = router({
       const isoString = date.toISOString();
       const dateString = isoString.split("T")[0];
 
+      const app = await db.query.apps.findFirst({
+        where: (apps, { eq }) => eq(apps.id, input.appId),
+        with: {
+          storage: true,
+        }
+      })
+
+      if (!app || !app.storage) {
+        throw new TRPCError({
+          code: 'BAD_REQUEST'
+        })
+      }
+
+      if (app.userId !== ctx.session.user.id) {
+        throw new TRPCError({
+          code: 'FORBIDDEN'
+        })
+      }
+
+      const storage = app.storage
+
       const params: PutObjectCommandInput = {
-        Bucket: bucketName,
+        Bucket: storage.configuration.bucket || bucketName,
         Key: `${dateString}/${input.filename.replaceAll(" ", "_")}`,
         ContentType: input.contentType,
         ContentLength: input.size
       };
 
       const s3Client = new S3Client({
-        endpoint: apiEndpoint,
-        region: region,
+        endpoint: storage.configuration.apiEndpoint || apiEndpoint,
+        region: storage.configuration.region || region,
         credentials: {
-          accessKeyId: cosSecretId,
-          secretAccessKey: cosSecretKey
+          accessKeyId: storage.configuration.assessKeyId || cosSecretId,
+          secretAccessKey: storage.configuration.secretAccessKey || cosSecretKey
         }
       });
 
