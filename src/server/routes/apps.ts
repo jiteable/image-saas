@@ -1,8 +1,9 @@
-import { uuid } from "zod";
 import { createAppSchema } from "../db/validate-schema";
 import { protectedProcedure, router } from "../trip";
 import { db } from "../db/db";
 import { apps } from "../db/schema";
+import { desc } from "drizzle-orm"; // 添加此行导入
+
 
 export const appsRoute = router({
   createApp: protectedProcedure.input(createAppSchema.pick({ name: true, description: true })).mutation(async ({ ctx, input }) => {
@@ -13,5 +14,14 @@ export const appsRoute = router({
     }).returning()
 
     return result[0]
+  }),
+
+  listApps: protectedProcedure.query(async ({ ctx }) => {
+    const result = await db.query.apps.findMany({
+      where: (apps, { eq, and, isNull }) => and(eq(apps.id, ctx.session.user.id), isNull(apps.deletedAt)),
+      orderBy: [desc(apps.createdAt)]
+    })
+
+    return result
   })
 })

@@ -1,4 +1,4 @@
-import z, { file } from "zod";
+import z from "zod";
 import { protectedProcedure, router } from "../trip"
 import { TRPCError } from "@trpc/server";
 import {
@@ -11,8 +11,6 @@ import { files } from "../db/schema";
 import { db } from "../db/db";
 import { desc, asc, sql, eq, isNull, and } from 'drizzle-orm';
 import { filesCanOrderByColumns } from "../db/validate-schema";
-import { CarTaxiFront } from "lucide-react";
-import { Input } from "@/components/ui/input";
 
 const filesOrderByColumnSchema = z.object({
   field: filesCanOrderByColumns.keyof(),
