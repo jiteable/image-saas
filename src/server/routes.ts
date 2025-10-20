@@ -1,11 +1,13 @@
 
 import { appsRoute } from "./routes/apps";
 import { fileRoutes } from "./routes/file";
+import { storagesRoute } from "./routes/storages";
 import { router } from "./trip"
 
 export const appRouter = router({
   file: fileRoutes,
-  apps: appsRoute
+  apps: appsRoute,
+  storages: storagesRoute
 })
 
 export type AppRouter = typeof appRouter

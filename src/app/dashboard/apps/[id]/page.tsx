@@ -12,7 +12,7 @@ import { usePasteFile } from "@/hooks/usePasteFile";
 import { UploadPreview } from "@/components/feature/UploadPreview";
 import { FileList } from "@/components/feature/FileList";
 import { FilesOrderByColumn } from "@/server/routes/file";
-import { MoveDown, MoveUp } from "lucide-react";
+import { MoveDown, MoveUp, Settings } from "lucide-react";
 import Link from "next/link";
 
 export default async function AppPage({ params: { id: appId } }: { params: { id: string } }) { // 添加 async 关键字
@@ -63,6 +63,11 @@ export default async function AppPage({ params: { id: appId } }: { params: { id:
           <Button asChild>
             <Link href="/dashboard/apps/new">
               new App
+            </Link>
+          </Button>
+          <Button asChild>
+            <Link href={`/dashboard/apps/${appId}/storage`}>
+              <Settings />
             </Link>
           </Button>
         </div>

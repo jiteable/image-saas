@@ -1,7 +1,7 @@
 import { createInsertSchema, createSelectSchema } from 'drizzle-zod'
 import { z } from 'zod'
 
-import { apps, files, users } from './schema'
+import { apps, files, storageConfiguration, users } from './schema'
 
 export const InsertUserSchema = createInsertSchema(users, {
   email: z.string().email()
@@ -21,3 +21,5 @@ export const filesCanOrderByColumns = fileSchema.pick({
 export const createAppSchema = createInsertSchema(apps, {
   name: (schema) => schema.min(3)
 })
+
+export const createStorageSchema = createInsertSchema(storageConfiguration)
