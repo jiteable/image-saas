@@ -66,7 +66,7 @@ export default async function AppPage({ params: { id: appId } }: { params: { id:
             </Link>
           </Button>
           <Button asChild>
-            <Link href={`/dashboard/apps/${appId}/storage`}>
+            <Link href={`/dashboard/apps/${appId}/setting/storage`}>
               <Settings />
             </Link>
           </Button>

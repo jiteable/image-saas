@@ -2,6 +2,9 @@ import { initTRPC, TRPCError } from "@trpc/server"
 import { Session } from "inspector/promises"
 import { getServerSession } from "next-auth"
 import { fileRoutes } from "./routes/file";
+import { headers } from "next/headers";
+import { db } from "./db/db";
+import { and } from "drizzle-orm";
 
 const t = initTRPC.context().create()
 
@@ -46,6 +49,48 @@ export const protectedProcedure = withLoggerProcedure.use(withSessionMiddleware)
       }
     })
   })
+
+export const withAppProcedure = withLoggerProcedure.use(
+  async ({ next }) => {
+
+    const header = headers()
+
+    const apiKey = (await header).get("api-key")
+
+    if (!apiKey) {
+      throw new TRPCError({
+        code: "FORBIDDEN"
+      })
+    }
+
+    const apiKeyAndAppUser = await db.query.apiKeys.findFirst({
+      where: (apiKeys, { eq, and, isNotNull }) =>
+        and(eq(apiKeys.key, apiKey), isNotNull(apiKeys.deletedAt)),
+      with: {
+        app: {
+          with: {
+            user: true
+          }
+        }
+      }
+    })
+
+    if (!apiKeyAndAppUser) {
+      throw new TRPCError({
+        code: 'NOT_FOUND'
+      })
+    }
+
+
+    return next({
+      ctx: {
+        app: apiKeyAndAppUser.app,
+        user: apiKeyAndAppUser.app.user
+      }
+    })
+  }
+)
+
 
 export { router }
 

@@ -1,11 +1,11 @@
 import { NextRequest } from "next/server"
 import { fetchRequestHandler } from "@trpc/server/adapters/fetch" // 添加此导入
-import { appRouter } from "@/server/routes"
+import { openRouter } from "@/server/open-router"
 const handler = (request: NextRequest) => {
   return fetchRequestHandler({
-    endpoint: "/api/trpc",
+    endpoint: "/api/open",
     req: request,
-    router: appRouter,
+    router: openRouter,
     createContext: () => ({})
   })
 }
