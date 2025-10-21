@@ -27,7 +27,7 @@ export default function StoragePage({ params: { id } }: { params: { id: string }
 
   const currentApp = apps?.filter(app => app.id === id)[0]
 
-  return <div className="container pt-10">
+  return <div className="pt-10">
     <div className="flex justify-between items-center">
       <h1 className="text-3xl mb-6">Storage</h1>
       <Button>
