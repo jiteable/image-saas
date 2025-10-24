@@ -1,0 +1,17 @@
+'use client'
+
+import { Button } from "@/components/ui/button";
+import { useFormStatus } from "react-dom";
+
+export function SubmitButton() {
+  const status = useFormStatus()
+
+  return (
+    <Button
+      type="submit"
+      disabled={status.pending}
+    >
+      {status.pending ? "Creating..." : "Create App"}
+    </Button>
+  )
+}

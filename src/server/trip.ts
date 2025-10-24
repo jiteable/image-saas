@@ -22,12 +22,6 @@ export const withLoggerProcedure = procedure.use(async ({ ctx, next }) => {
 const withSessionMiddleware = t.middleware(async ({ ctx, next }) => {
   const session = await getServerSession()
 
-  // if (!ctx.session?.user) {
-  //   throw new TRPCError({
-  //     code: "FORBIDDEN"
-  //   })
-  // }
-
   return next({
     ctx: {
       session
@@ -49,6 +43,18 @@ export const protectedProcedure = withLoggerProcedure.use(withSessionMiddleware)
       }
     })
   })
+
+// 创建一个新的公开过程，不需要身份验证
+export const publicProcedure = withLoggerProcedure.use(withSessionMiddleware);
+
+// 创建上下文的函数
+export async function createContext() {
+  const session = await getServerSession();
+
+  return {
+    session
+  };
+}
 
 export const withAppProcedure = withLoggerProcedure.use(
   async ({ next }) => {

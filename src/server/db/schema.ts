@@ -34,7 +34,9 @@ export const users = pgTable("user", {
   email: text("email").unique(),
   emailVerified: timestamp("emailVerified", { mode: "date" }),
   image: text("image"),
-  createdAt: date('create_at').defaultNow()
+  createdAt: date('create_at').defaultNow(),
+  // 添加认证所需的字段
+  password: text("password"),
 })
 
 export const userSRelation = relations(users, ({ many }) => ({
@@ -198,5 +200,21 @@ export const apiKeys = pgTable('apiKeys', {
 export const apiKeysRelation = relations(apiKeys, ({ one }) => ({
   app: one(apps, {
     fields: [apiKeys.appId], references: [apps.id]
+  })
+}))
+
+// 添加验证码表
+export const actionToken = pgTable("actionToken", {
+  id: serial("id").primaryKey(),
+  account: text("account").notNull(), // 存储邮箱
+  code: text("code").notNull(), // 验证码
+  expiredAt: timestamp("expired_at", { mode: "date" }).notNull(), // 过期时间
+  createdAt: timestamp("created_at", { mode: "date" }).defaultNow(),
+})
+
+export const actionTokenRelations = relations(actionToken, ({ one }) => ({
+  user: one(users, {
+    fields: [actionToken.account],
+    references: [users.email]
   })
 }))
