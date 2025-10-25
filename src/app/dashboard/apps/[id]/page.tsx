@@ -14,8 +14,10 @@ import { FileList } from "@/components/feature/FileList";
 import { FilesOrderByColumn } from "@/server/routes/file";
 import { MoveDown, MoveUp, Settings } from "lucide-react";
 import Link from "next/link";
+import { use } from "react";
+export default function AppPage({ params }: { params: Promise<{ id: string }> }) { // 添加 async 关键字
 
-export default function AppPage({ params: { id: appId } }: { params: { id: string } }) { // 添加 async 关键字
+  const { id: appId } = use(params);
 
   const [uppy] = useState<Uppy>(() => {
     const uppyInstance = new Uppy();
@@ -75,10 +77,12 @@ export default function AppPage({ params: { id: appId } }: { params: { id: strin
       <Dropzone uppy={uppy} className="relative h-[clac(100% - 60px)]">
         {
           (draging) => {
-            return <> draging && (
-              <div className="absolute inset-0 bg-secondary/30 flex justify-center items-center">
-                Drop File Here to Upload
-              </div>)
+            return <> {
+              draging && (
+                <div className="absolute inset-0 bg-secondary/30 flex justify-center items-center">
+                  Drop File Here to Upload
+                </div>)
+            }
 
               <FileList appId={appId} uppy={uppy} orderBy={orderBy}></FileList>
             </>

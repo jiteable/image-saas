@@ -19,7 +19,8 @@ export function UploadPreview({ uppy }: { uppy: Uppy }) {
 
   const file = files[index]
 
-  const isImage = file.data.type.startsWith("image");
+  // 添加检查确保 file 和 file.data 存在
+  const isImage = file && file.data && file.data.type && file.data.type.startsWith("image");
 
   const clear = () => {
     files.map((file) => {

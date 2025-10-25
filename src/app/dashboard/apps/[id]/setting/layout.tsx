@@ -3,8 +3,9 @@
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { usePathname } from "next/navigation";
-export default async function SettingLayout({ params, children }: { params: Promise<{ id: string }>; children: React.ReactNode }) {
-  const id = (await params).id
+import { use } from "react";
+export default function SettingLayout({ params, children }: { params: Promise<{ id: string }>; children: React.ReactNode }) {
+  const { id } = use(params);
   const path = usePathname()
 
   return <div className="flex justify-start">

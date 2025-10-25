@@ -6,8 +6,9 @@ import { Plus } from "lucide-react"
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover"
 import { Input } from "@/components/ui/input"
 import { useState } from "react"
-export default async function ApiKeysPage({ params }: { params: Promise<{ id: string }> }) {
-  const id = (await params).id
+import { use } from "react";
+export default function ApiKeysPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = use(params)
 
   const { data: apiKeys } = trpcClientReact.apiKeys.listapiKeys.useQuery({ appId: id })
 

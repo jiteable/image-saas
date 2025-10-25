@@ -4,11 +4,12 @@ import { trpcClientReact } from "@/utils/api";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { use } from "react";
 
-export default async function AppDashboardNav({ params }: { params: Promise<{ id: string }> }) {
+export default function AppDashboardNav({ params }: { params: Promise<{ id: string }> }) {
   const { data: apps, isPending } = trpcClientReact.apps.listApps.useQuery()
 
-  const id = (await params).id;
+  const { id } = use(params);
 
   const currentApp = apps?.filter(app => app.id === id)[0]
 
