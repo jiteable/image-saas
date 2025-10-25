@@ -13,6 +13,7 @@ interface IUser extends DefaultUser {
    * more fields
    */
   phone?: string | null
+  id?: string
 }
 declare module 'next-auth' {
   interface User extends IUser { }

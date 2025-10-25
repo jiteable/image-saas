@@ -1,10 +1,9 @@
 import { initTRPC, TRPCError } from "@trpc/server"
 import { Session } from "inspector/promises"
-import { getServerSession } from "next-auth"
-import { fileRoutes } from "./routes/file";
+import { getServerSession } from "./auth";
 import { headers } from "next/headers";
 import { db } from "./db/db";
-import { and } from "drizzle-orm";
+import { and, isNull } from "drizzle-orm";
 
 const t = initTRPC.context().create()
 
@@ -31,6 +30,7 @@ const withSessionMiddleware = t.middleware(async ({ ctx, next }) => {
 
 export const protectedProcedure = withLoggerProcedure.use(withSessionMiddleware)
   .use(async ({ ctx, next }) => {
+
     if (!ctx.session?.user) {
       throw new TRPCError({
         code: "FORBIDDEN"
@@ -39,10 +39,11 @@ export const protectedProcedure = withLoggerProcedure.use(withSessionMiddleware)
 
     return next({
       ctx: {
-        session: ctx.session!
+        session: ctx.session
       }
     })
   })
+
 
 // 创建一个新的公开过程，不需要身份验证
 export const publicProcedure = withLoggerProcedure.use(withSessionMiddleware);
@@ -70,8 +71,8 @@ export const withAppProcedure = withLoggerProcedure.use(
     }
 
     const apiKeyAndAppUser = await db.query.apiKeys.findFirst({
-      where: (apiKeys, { eq, and, isNotNull }) =>
-        and(eq(apiKeys.key, apiKey), isNotNull(apiKeys.deletedAt)),
+      where: (apiKeys, { eq, and }) =>
+        and(eq(apiKeys.key, apiKey), isNull(apiKeys.deletedAt)),
       with: {
         app: {
           with: {
@@ -99,13 +100,4 @@ export const withAppProcedure = withLoggerProcedure.use(
 
 
 export { router }
-
-
-export const appRouter = router({
-  // 如果你有其他路由，在这里添加
-  file: fileRoutes,
-});
-
-export type AppRouter = typeof appRouter;
-
 

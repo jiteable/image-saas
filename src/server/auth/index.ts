@@ -8,6 +8,7 @@ import { and, eq } from "drizzle-orm";
 import { users, actionToken } from '@/server/db/schema';
 
 export const authOptions: NextAuthOptions = {
+  secret: process.env.NEXTAUTH_SECRET,
   session: {
     strategy: 'jwt',
     maxAge: 2 * 24 * 60 * 60,
@@ -161,20 +162,31 @@ export const authOptions: NextAuthOptions = {
   ],
   callbacks: {
     async jwt({ token, user }: { token: any; user: any }) {
+
+      // 如果是初次登录（user存在），则从user对象中获取信息
       if (user) {
         token.id = user.id
         token.email = user.email
+        token.name = user.name
       }
+
       return token
     },
     async session({ session, token }: { session: any; token: any }) {
+
       if (token && session.user) {
-        session.user.id = token.id
-        session.user.email = token.email
+        session.user.id = token.id;
+        session.user.name = token.name || session.user.name;
+        session.user.email = token.email || session.user.email;
+        // image可能不存在，所以使用可选链
+        session.user.image = token.image || session.user.image;
       }
+
+      console.log("Session callback - final session:", JSON.stringify(session, null, 2));
       return session
     },
   },
+
 }
 
 export function getServerSession() {

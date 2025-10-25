@@ -177,11 +177,12 @@ export type StorageConfiguration = S3StorageConfiguration
 export const storageConfiguration = pgTable("storageConfiguration", {
   id: serial("id").primaryKey(),
   name: varchar("name", { length: 100 }).notNull(),
-  userId: uuid("user_id").notNull(),
+  userId: text("user_id").notNull(), // 将 uuid 改为 text 以匹配 users 表的 id 类型
   configuration: json("configuration").$type<S3StorageConfiguration>().notNull(),
   createAt: timestamp("created_at", { mode: "date" }).defaultNow(),
   deletedAt: timestamp("deleted_at", { mode: "date" })
 })
+
 
 export const storageConfigurationRelation = relations(storageConfiguration, ({ one }) => ({
   user: one(users, { fields: [storageConfiguration.userId], references: [users.id] })

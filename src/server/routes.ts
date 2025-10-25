@@ -1,6 +1,6 @@
 import { apiKeysRoute } from "./routes/apiKeys";
 import { appsRoute } from "./routes/apps";
-import { fileRoutes } from "./routes/file";
+import { appsRoute as fileRoutes } from "./routes/file";
 import { storagesRoute } from "./routes/storages";
 import { router } from "./trip"
 

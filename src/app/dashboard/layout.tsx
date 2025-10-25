@@ -13,7 +13,7 @@ export default async function DashBoardLayout({
 
   const session = await getServerSession()
 
-  if (!session) {
+  if (!session || !session.user) {
     redirect("/api/auth/signin")
   }
 
@@ -23,12 +23,12 @@ export default async function DashBoardLayout({
         <DropdownMenu>
           <DropdownMenuTrigger>
             <Avatar>
-              <AvatarImage src={session.user.image!}></AvatarImage>
-              <AvatarFallback>{session.user.name?.substring(0, 2)}</AvatarFallback>
+              <AvatarImage src={session.user?.image ?? undefined}></AvatarImage>
+              <AvatarFallback>{session.user?.name?.substring(0, 2)}</AvatarFallback>
             </Avatar>
           </DropdownMenuTrigger>
           <DropdownMenuContent>
-            <DropdownMenuLabel>{session.user.name}</DropdownMenuLabel>
+            <DropdownMenuLabel>{session.user?.name ?? ""}</DropdownMenuLabel>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
