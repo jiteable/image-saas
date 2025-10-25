@@ -8,8 +8,7 @@ import { inferRouterOutputs } from "@trpc/server";
 import { Button } from "../ui/button";
 import { ScrollArea } from "../ui/scroll-area";
 import { type FilesOrderByColumn } from "@/server/routes/file";
-import { DeleteFile } from "./FileItemAction";
-import { CopyUrl } from "./FileItemAction";
+import { DeleteFile, CopyUrl, ViewImage } from "./FileItemAction";
 
 type FileResult = inferRouterOutputs<AppRouter>['file']['listFiles']
 export function FileList({ uppy, orderBy, appId }: { uppy: Uppy, orderBy: FilesOrderByColumn, appId: string }) {
@@ -155,12 +154,15 @@ export function FileList({ uppy, orderBy, appId }: { uppy: Uppy, orderBy: FilesO
         {filesList?.map((file) => {
 
           return (
-            <div key={file.id} className="w-56 h-56 flex justify-center items-center border">
+            <div key={file.id} className="w-56 h-56 flex justify-center items-center border relative">
               <div className="inset-0 absolute bg-background/30 opacity-0 transition-all hover:opacity-100 justify-center items-center flex">
                 <CopyUrl url={file.url}></CopyUrl>
+                <ViewImage url={`/image/${file.id}`} name={file.name} />
                 <DeleteFile fileId={file.id} onDeleteSuccess={handleFileDelete}></DeleteFile>
               </div>
-              <RemoteFileItem contentType={file.contentType} id={file.id} name={file.name}></RemoteFileItem>
+              <div onDoubleClick={(e) => e.stopPropagation()}>
+                <RemoteFileItem contentType={file.contentType} id={file.id} name={file.name}></RemoteFileItem>
+              </div>
             </div>
           );
         })}
