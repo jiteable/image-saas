@@ -70,9 +70,12 @@ export const fileRoutes = router({
 
       const storage = app.storage
 
+      // 使用 encodeURIComponent 来正确处理特殊字符
+      const encodedFilename = encodeURIComponent(input.filename.replaceAll(" ", "_"));
+
       const params: PutObjectCommandInput = {
         Bucket: storage.configuration.bucket || bucketName,
-        Key: `${dateString}/${input.filename.replaceAll(" ", "_")}`,
+        Key: `${dateString}/${encodedFilename}`,
         ContentType: input.contentType,
         ContentLength: input.size
       };
@@ -97,6 +100,7 @@ export const fileRoutes = router({
       }
 
     }),
+
 
   saveFile: protectedProcedure
     .input(

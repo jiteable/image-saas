@@ -43,10 +43,12 @@ export async function GET(request: NextRequest, context: { params: Promise<{ id:
     })
   }
 
+  // 解码路径，确保正确处理 URL 编码的字符
+  const decodedPath = decodeURIComponent(file.path);
+
   const params: GetObjectCommandInput = {
     Bucket: bucketName,
-    Key: file.path
-
+    Key: decodedPath
   }
 
   const s3Client = new S3Client({
@@ -58,33 +60,44 @@ export async function GET(request: NextRequest, context: { params: Promise<{ id:
     }
   })
 
-  const command = new GetObjectCommand(params)
-  const response = await s3Client.send(command)
+  try {
+    const command = new GetObjectCommand(params)
+    const response = await s3Client.send(command)
 
-  const byteArray = await response.Body?.transformToByteArray()
+    const byteArray = await response.Body?.transformToByteArray()
 
-  if (!byteArray) {
-    return new NextResponse('', {
-      status: 400
-    })
-  }
-
-  const image = sharp(byteArray)
-
-  image.resize({
-    width: 250,
-    height: 250
-  })
-
-  const buffer = await image.webp().toBuffer()
-
-  const uint8Array = new Uint8Array(buffer);
-
-  return new NextResponse(uint8Array, {
-    headers: {
-      "Content-Type": "image/webp",
-      "Cache-Control": "public, max-age=31536000, immutable"
+    if (!byteArray) {
+      return new NextResponse('', {
+        status: 400
+      })
     }
-  })
 
+    const image = sharp(byteArray)
+
+    image.resize({
+      width: 250,
+      height: 250
+    })
+
+    const buffer = await image.webp().toBuffer()
+
+    const uint8Array = new Uint8Array(buffer);
+
+    return new NextResponse(uint8Array, {
+      headers: {
+        "Content-Type": "image/webp",
+        "Cache-Control": "public, max-age=31536000, immutable"
+      }
+    })
+  } catch (error: any) {
+    // 处理 S3 错误，特别是 NoSuchKey 错误
+    if (error.name === 'NoSuchKey') {
+      console.error('S3 NoSuchKey error:', error);
+      return new NextResponse('File not found', { status: 404 });
+    }
+
+    // 处理其他 S3 错误
+    console.error('S3 error:', error);
+    return new NextResponse('Internal server error', { status: 500 });
+  }
 }

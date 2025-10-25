@@ -68,8 +68,10 @@ export function FileList({ uppy, orderBy, appId }: { uppy: Uppy, orderBy: FilesO
     }
 
     const uploadProgressHandler = (data: any) => {
-      if (data) {
-        setUploadingFileIDs((currentFiles) => [...currentFiles, ...data.fileIDs])
+      if (data && data.fileIDs) {
+        // 确保 data.fileIDs 是数组后再展开
+        const fileIDs = Array.isArray(data.fileIDs) ? data.fileIDs : Object.keys(data.fileIDs);
+        setUploadingFileIDs((currentFiles) => [...currentFiles, ...fileIDs])
       }
     }
 
