@@ -3,7 +3,9 @@
 import { trpcClientReact } from "@/utils/api"
 import { Button } from "@/components/ui/button"
 import { Plus } from "lucide-react"
-export default function StoragePage({ params: { id } }: { params: { id: string } }) {
+export default async function StoragePage({ params }: { params: Promise<{ id: string }> }) {
+  const id = (await params).id;
+
   const { data: storages } = trpcClientReact.storages.listStorages.useQuery()
 
   const { data: apps, isPending } = trpcClientReact.apps.listApps.useQuery()

@@ -15,7 +15,7 @@ import { FilesOrderByColumn } from "@/server/routes/file";
 import { MoveDown, MoveUp, Settings } from "lucide-react";
 import Link from "next/link";
 
-export default async function AppPage({ params: { id: appId } }: { params: { id: string } }) { // 添加 async 关键字
+export default function AppPage({ params: { id: appId } }: { params: { id: string } }) { // 添加 async 关键字
 
   const [uppy] = useState<Uppy>(() => {
     const uppyInstance = new Uppy();

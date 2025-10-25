@@ -2,33 +2,20 @@ import { createAppSchema } from "../db/validate-schema";
 import { protectedProcedure, router } from "../trip";
 import { db } from "../db/db";
 import { apps, storageConfiguration } from "../db/schema";
-import { and, desc, eq } from "drizzle-orm"; // 添加此行导入
+import { and, desc, eq, isNull } from "drizzle-orm"; // 添加 isNull 导入
 import z from "zod";
 import { TRPCError } from "@trpc/server";
 
 export const appsRoute = router({
   createApp: protectedProcedure.input(createAppSchema.pick({ name: true, description: true })).mutation(async ({ ctx, input }) => {
     // 首先检查是否存在默认存储配置，如果不存在则创建一个
-    console.log("defaultStorageaaaaaaa: after")
-
-    const userId = ctx.session.user?.id;
-    console.log('userId: ', userId)
-    if (!userId) {
-      throw new TRPCError({
-        code: "UNAUTHORIZED",
-        message: "User not authenticated"
-      });
-    }
-
     let defaultStorage = await db.query.storageConfiguration.findFirst({
-      where: (storage, { eq, and, isNull }) => and(
+      where: (storage, { eq, and }) => and(
         eq(storage.userId, ctx.session.user!.id),
         eq(storage.name, 'Default COS Storage'),
         isNull(storage.deletedAt)
       )
     });
-
-    console.log("defaultStorage: ", defaultStorage)
 
     // 如果默认存储配置不存在，则创建一个基于环境变量的默认配置
     if (!defaultStorage) {
@@ -71,7 +58,7 @@ export const appsRoute = router({
 
   listApps: protectedProcedure.query(async ({ ctx }) => {
     const result = await db.query.apps.findMany({
-      where: (apps, { eq, and, isNull }) => and(eq(apps.userId, ctx.session.user!.id), isNull(apps.deletedAt)),
+      where: (apps, { eq, and }) => and(eq(apps.userId, ctx.session.user!.id), isNull(apps.deletedAt)),
       orderBy: [desc(apps.createdAt)],
       with: {
         storage: true

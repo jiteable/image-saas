@@ -3,7 +3,10 @@ import { GetObjectCommand, GetObjectCommandInput, S3Client } from "@aws-sdk/clie
 import { TRPCError } from "@trpc/server";
 import { NextRequest, NextResponse } from "next/server";
 import sharp from 'sharp'
-export async function GET(request: NextRequest, { params: { id } }: { params: { id: string } }) {
+
+export async function GET(request: NextRequest, context: { params: Promise<{ id: string }> }) {
+
+  const { id } = await context.params;
 
   const bucketName = process.env.BUCKET_NAME;
   const apiEndpoint = process.env.API_ENDPOINT;

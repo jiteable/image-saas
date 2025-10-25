@@ -6,9 +6,9 @@ import { SubmitHandler, useForm } from "react-hook-form"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { trpcClientReact } from "@/utils/api"
-import { redirect } from "next/navigation"
 import { useRouter } from "next/navigation"
-export default function StoragePage({ params: { id } }: { params: { id: string } }) {
+export default async function StoragePage({ params }: { params: Promise<{ id: string }> }) {
+  const id = (await params).id;
 
   const router = useRouter()
 
