@@ -58,7 +58,7 @@ export default function ApiKeysPage({ params }: { params: Promise<{ id: string }
       </Popover>
     </div>
     {apiKeys?.map(apiKey => {
-      return <div key={apiKey.id} className="border p-4 flex justify-center items-center">
+      return <div key={apiKey.id} className="border p-4 flex justify-around items-center ">
         <span>
           {apiKey.name}
         </span>

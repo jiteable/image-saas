@@ -22,19 +22,14 @@ if (!process.env.DATABASE_URL) {
   throw new Error('DATABASE_URL is not defined in environment variables');
 }
 
-
-const connectionString = process.env.DATABASE_URL
-const pool = postgres(connectionString, { max: 1 })
-
 export const users = pgTable("user", {
-  id: text("id")
-    .primaryKey()
-    .$defaultFn(() => crypto.randomUUID()),
+  id: text("id").notNull().primaryKey(),
   name: text("name"),
-  email: text("email").unique(),
+  email: text("email").notNull(),
   emailVerified: timestamp("emailVerified", { mode: "date" }),
+  plan: text("plan", { enum: ["free", "payed"] }),
   image: text("image"),
-  createdAt: date('create_at').defaultNow(),
+  createAt: date("create_at").defaultNow(),
   // 添加认证所需的字段
   password: text("password"),
 })
@@ -119,7 +114,7 @@ export const authenticators = pgTable(
 )
 
 export const files = pgTable("files", {
-  id: uuid("id").primaryKey().defaultRandom(), // 添加 .defaultRandom()
+  id: uuid("id").primaryKey().defaultRandom(),
   name: varchar("name", { length: 100 }).notNull(),
   type: varchar("type", { length: 100 }).notNull(),
   createdAt: timestamp("created_at", { mode: "date" }).defaultNow(),
@@ -138,21 +133,16 @@ export const filesRelations = relations(files, ({ one }) => ({
   app: one(apps, { fields: [files.appId], references: [apps.id] })
 }))
 
-export const apps = pgTable(
-  "apps",
-  {
-    id: uuid("id").notNull().primaryKey().defaultRandom(),
-    name: varchar("name", { length: 100 }).notNull(),
-    description: varchar("description", { length: 500 }),
-    deletedAt: timestamp("deleted_at", { mode: "date" }),
-    createdAt: timestamp("created_at", { mode: "date" }).defaultNow(),
-    userId: text("user_id").notNull(),
-    storageId: integer("storage_id")
-  },
-  (app) => ({
-    compoundNameKey: unique().on(app.id, app.name)
-  })
-)
+export const apps = pgTable("apps", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  name: varchar("name", { length: 100 }).notNull(),
+  description: varchar("description", { length: 500 }),
+  deletedAt: timestamp("deleted_at", { mode: "date" }),
+  createdAt: timestamp("created_at", { mode: "date" }).defaultNow(),
+  userId: text("user_id").notNull(),
+  storageId: integer("storage_id"),
+});
+
 
 export const appRelation = relations(apps, ({ one, many }) => ({
   user: one(users, { fields: [apps.userId], references: [users.id] }),
@@ -160,9 +150,6 @@ export const appRelation = relations(apps, ({ one, many }) => ({
   files: many(files),
   apiKeys: many(apiKeys)
 }))
-
-
-export const db = drizzle(pool);
 
 export type S3StorageConfiguration = {
   bucket: string;
@@ -177,7 +164,7 @@ export type StorageConfiguration = S3StorageConfiguration
 export const storageConfiguration = pgTable("storageConfiguration", {
   id: serial("id").primaryKey(),
   name: varchar("name", { length: 100 }).notNull(),
-  userId: text("user_id").notNull(), // 将 uuid 改为 text 以匹配 users 表的 id 类型
+  userId: uuid("user_id").notNull(), // 将 uuid 改为 text 以匹配 users 表的 id 类型
   configuration: json("configuration").$type<S3StorageConfiguration>().notNull(),
   createAt: timestamp("created_at", { mode: "date" }).defaultNow(),
   deletedAt: timestamp("deleted_at", { mode: "date" })
@@ -192,8 +179,9 @@ export const storageConfigurationRelation = relations(storageConfiguration, ({ o
 export const apiKeys = pgTable('apiKeys', {
   id: serial('id').primaryKey(),
   name: varchar("name", { length: 255 }).notNull(),
+  clientId: varchar("clientId", { length: 100 }).notNull().unique(),
   key: varchar("key", { length: 100 }).notNull(),
-  appId: varchar('appId', { length: 100 }).notNull(),
+  appId: uuid('appId').notNull(),
   createAt: timestamp("created_at", { mode: "date" }).defaultNow(),
   deletedAt: timestamp("deleted_at", { mode: "date" })
 })

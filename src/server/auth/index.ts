@@ -1,11 +1,12 @@
 import CredentialsProvider from 'next-auth/providers/credentials'
-import { db } from '@/server/db/db'
+import { db } from '../db/db'
 import type { NextAuthOptions } from 'next-auth'
 import {
   getServerSession as nextAuthGetServerSession,
 } from "next-auth";
 import { and, eq } from "drizzle-orm";
-import { users, actionToken } from '@/server/db/schema';
+import { users, actionToken } from '../db/schema';
+import { v4 as uuid } from 'uuid';
 
 export const authOptions: NextAuthOptions = {
   secret: process.env.NEXTAUTH_SECRET,
@@ -75,6 +76,7 @@ export const authOptions: NextAuthOptions = {
               : '';
 
             const newUserResult = await db.insert(users).values({
+              id: uuid(),
               email: credentials.email as string,
               name: name || (credentials.email as string).split('@')[0],
               password: credentials.password as string,
@@ -141,6 +143,7 @@ export const authOptions: NextAuthOptions = {
               : '';
 
             const newUserResult = await db.insert(users).values({
+              id: uuid(),
               email: credentials.email as string,
               name: name || (credentials.email as string).split('@')[0],
             }).returning();

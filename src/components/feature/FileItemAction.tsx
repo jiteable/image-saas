@@ -6,9 +6,9 @@ import { toast } from "sonner";
 import {
   Dialog,
   DialogContent,
-  DialogTitle
+  DialogTitle,
 } from "@/components/ui/dialog";
-import { useState } from "react";
+import { useState, useRef } from "react";
 
 export function DeleteFile({ fileId, onDeleteSuccess }: { fileId: string, onDeleteSuccess: (file: string) => void }) {
 
@@ -47,18 +47,31 @@ export function ViewImage({ url, name }: { url: string, name: string }) {
         <ZoomIn />
       </Button>
 
-      <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="max-w-[90vw] max-h-[90vh] p-0 border-0 shadow-none bg-transparent">
-          <DialogTitle className="hidden">Image Preview</DialogTitle>
-          <div className="flex items-center justify-center h-[90vh]">
+      {open && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center p-4 animate-in fade-in duration-200"
+          onClick={() => setOpen(false)}
+        >
+          <div
+            className="relative max-h-[90vh] max-w-[90vw] animate-in zoom-in-90 duration-200"
+            onClick={(e) => e.stopPropagation()}
+          >
             <img
               src={url}
               alt={name}
-              className="max-h-full max-w-full object-contain"
+              className="max-h-[90vh] max-w-[90vw] object-contain"
             />
+            <Button
+              className="absolute top-1 right-0 bg-black bg-opacity-50 text-white hover:bg-opacity-75"
+              variant="ghost"
+              size="sm"
+              onClick={() => setOpen(false)}
+            >
+              ✕
+            </Button>
           </div>
-        </DialogContent>
-      </Dialog>
+        </div>
+      )}
     </>
   );
 }

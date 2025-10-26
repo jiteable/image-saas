@@ -1,9 +1,7 @@
 import { initTRPC, TRPCError } from "@trpc/server"
-import { Session } from "inspector/promises"
 import { getServerSession } from "./auth";
 import { headers } from "next/headers";
 import { db } from "./db/db";
-import { and, isNull } from "drizzle-orm";
 
 const t = initTRPC.context().create()
 
@@ -71,12 +69,13 @@ export const withAppProcedure = withLoggerProcedure.use(
     }
 
     const apiKeyAndAppUser = await db.query.apiKeys.findFirst({
-      where: (apiKeys, { eq, and }) =>
+      where: (apiKeys, { eq, and, isNull }) =>
         and(eq(apiKeys.key, apiKey), isNull(apiKeys.deletedAt)),
       with: {
         app: {
           with: {
-            user: true
+            user: true,
+            storage: true
           }
         }
       }

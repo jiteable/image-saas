@@ -9,7 +9,7 @@ export const actionTokenRoute = router({
   // 创建或更新操作令牌
   createOrUpdate: publicProcedure
     .input(z.object({
-      account: z.string().email(),
+      account: z.email(),
       code: z.string().length(6),
       expiredAt: z.date()
     }))
@@ -45,7 +45,7 @@ export const actionTokenRoute = router({
   // 验证令牌
   verify: publicProcedure
     .input(z.object({
-      account: z.string().email(),
+      account: z.email(),
       code: z.string().length(6)
     }))
     .mutation(async ({ input }) => {

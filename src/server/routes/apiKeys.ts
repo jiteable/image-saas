@@ -21,7 +21,8 @@ export const apiKeysRoute = router({
     const result = await db.insert(apiKeys).values({
       name: input.name,
       appId: input.appId,
-      key: uuid()
+      key: uuid(),
+      clientId: uuid(),
     }).returning()
 
     return result[0]
