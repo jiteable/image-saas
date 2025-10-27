@@ -6,9 +6,12 @@
 import { createApiClient } from "@image-sass/api"
 import { onMounted } from "vue";
 
-const apiClient = createApiClient({ apiKey: "asd" })
+onMounted(async () => {
+  const tokenResp = await fetch('/api/test')
+  const token = await tokenResp.text()
 
-onMounted(() => {
+  const apiClient = createApiClient({ signedToken: token })
+
   apiClient.file.createPresignedUrl.mutate({
     filename: "屏幕截图 2024-08-19 173036.png",
     contentType: "image/png",

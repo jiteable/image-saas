@@ -2,6 +2,7 @@ import { initTRPC, TRPCError } from "@trpc/server"
 import { getServerSession } from "./auth";
 import { headers } from "next/headers";
 import { db } from "./db/db";
+import jwt, { JwtPayload } from "jsonwebtoken";
 
 const t = initTRPC.context().create()
 
@@ -55,19 +56,13 @@ export async function createContext() {
   };
 }
 
-export const withAppProcedure = withLoggerProcedure.use(
-  async ({ next }) => {
+export const withAppProcedure = withLoggerProcedure.use(async ({ next }) => {
+  const header = headers();
 
-    const header = headers()
+  const apiKey = (await header).get("api-key");
+  const signedToken = (await header).get("signed-token");
 
-    const apiKey = (await header).get("api-key")
-
-    if (!apiKey) {
-      throw new TRPCError({
-        code: "FORBIDDEN"
-      })
-    }
-
+  if (apiKey) {
     const apiKeyAndAppUser = await db.query.apiKeys.findFirst({
       where: (apiKeys, { eq, and, isNull }) =>
         and(eq(apiKeys.key, apiKey), isNull(apiKeys.deletedAt)),
@@ -75,27 +70,74 @@ export const withAppProcedure = withLoggerProcedure.use(
         app: {
           with: {
             user: true,
-            storage: true
-          }
-        }
-      }
-    })
+            storage: true,
+          },
+        },
+      },
+    });
 
     if (!apiKeyAndAppUser) {
       throw new TRPCError({
-        code: 'NOT_FOUND'
-      })
+        code: "NOT_FOUND",
+      });
     }
-
 
     return next({
       ctx: {
         app: apiKeyAndAppUser.app,
-        user: apiKeyAndAppUser.app.user
-      }
-    })
+        user: apiKeyAndAppUser.app.user,
+      },
+    });
+  } else if (signedToken) {
+    const payload = jwt.decode(signedToken);
+
+    if (!(payload as JwtPayload)?.clientId) {
+      throw new TRPCError({
+        code: "BAD_REQUEST",
+        message: "clientId not found",
+      });
+    }
+
+    const apiKeyAndAppUser = await db.query.apiKeys.findFirst({
+      where: (apiKeys, { eq, and, isNull }) =>
+        and(
+          eq(apiKeys.clientId, (payload as JwtPayload).clientId),
+          isNull(apiKeys.deletedAt)
+        ),
+      with: {
+        app: {
+          with: {
+            user: true,
+            storage: true,
+          },
+        },
+      },
+    });
+
+    if (!apiKeyAndAppUser) {
+      throw new TRPCError({
+        code: "NOT_FOUND",
+      });
+    }
+
+    try {
+      jwt.verify(signedToken, apiKeyAndAppUser.key);
+    } catch (err) {
+      throw new TRPCError({ code: "BAD_REQUEST" });
+    }
+
+    return next({
+      ctx: {
+        app: apiKeyAndAppUser.app,
+        user: apiKeyAndAppUser.app.user,
+      },
+    });
   }
-)
+
+  throw new TRPCError({
+    code: "FORBIDDEN",
+  });
+});
 
 
 export { router }
