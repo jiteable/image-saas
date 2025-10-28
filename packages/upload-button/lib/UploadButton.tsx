@@ -5,7 +5,13 @@ import { useRef } from "preact/hooks";
 type CommonPreactComponentProps = {
   setChildrenContainer: (ele: HTMLElement | null) => void
 }
-export function UploadButton({ onClick, setChildrenContainer, children, ...props }: HTMLAttributes<HTMLButtonElement> & CommonPreactComponentProps) {
+export function UploadButton({
+  onClick,
+  setChildrenContainer,
+  children,
+  onFileChosed,
+  ...props
+}: HTMLAttributes<HTMLButtonElement> & CommonPreactComponentProps & { onFileChosed: (files: File | File[]) => void }) {
 
   const inputRef = useRef<HTMLInputElement | null>(null)
 
@@ -27,6 +33,13 @@ export function UploadButton({ onClick, setChildrenContainer, children, ...props
         tabIndex={-1}
         type="file"
         ref={inputRef}
+        onChange={(e) => {
+          const filesFromEvent = (e.target as HTMLInputElement).files
+
+          if (filesFromEvent) {
+            onFileChosed(Array.from(filesFromEvent))
+          }
+        }}
         style={{ opacity: 0, position: "fixed", left: -10000 }}
       />
     </>

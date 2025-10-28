@@ -210,6 +210,9 @@ importers:
       '@image-saas/upload-button':
         specifier: workspace:*
         version: link:../../packages/upload-button
+      '@image-saas/uploader':
+        specifier: 'workspace: *'
+        version: link:../../packages/uploader
       '@image-sass/api':
         specifier: workspace:*
         version: link:../../packages/api
@@ -286,6 +289,15 @@ importers:
       vite:
         specifier: ^7.1.7
         version: 7.1.12(@types/node@24.9.1)(jiti@2.6.1)(lightningcss@1.30.1)(terser@5.44.0)(tsx@4.20.6)(yaml@2.8.1)
+
+  packages/uploader:
+    devDependencies:
+      '@uppy/aws-s3':
+        specifier: ^5.0.1
+        version: 5.0.1(@uppy/core@5.1.0)
+      '@uppy/core':
+        specifier: ^5.1.0
+        version: 5.1.0
 
 packages:
 

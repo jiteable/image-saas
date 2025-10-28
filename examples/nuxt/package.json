@@ -19,6 +19,7 @@
     "@types/jsonwebtoken": "^9.0.5",
     "@image-saas/upload-button": "workspace:*",
     "@preact/preset-vite": "^2.9.3",
-    "preact": "^10.27.2"
+    "preact": "^10.27.2",
+    "@image-saas/uploader": "workspace: *"
   }
 }
