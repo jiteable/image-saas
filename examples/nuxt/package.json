@@ -14,7 +14,11 @@
     "vue": "^3.5.22",
     "vue-router": "^4.6.3",
     "@image-sass/api": "workspace:*",
+    "@image-saas/preact-vue-connect": "workspace: *",
     "jsonwebtoken": "^9.0.2",
-    "@types/jsonwebtoken": "^9.0.5"
+    "@types/jsonwebtoken": "^9.0.5",
+    "@image-saas/upload-button": "workspace:*",
+    "@preact/preset-vite": "^2.9.3",
+    "preact": "^10.27.2"
   }
 }

@@ -1,10 +1,20 @@
 <template>
-  <div>Hello World</div>
+  <div>
+    <VueUploadButton>
+      assdd
+    </VueUploadButton>
+  </div>
 </template>
 
 <script setup>
 import { createApiClient } from "@image-sass/api"
 import { onMounted } from "vue";
+import { UploadButton } from "@image-saas/upload-button"
+import { connect } from "@image-saas/preact-vue-connect"
+
+const VueUploadButton = connect(UploadButton)
+
+const containerRef = ref()
 
 onMounted(async () => {
   const tokenResp = await fetch('/api/test')

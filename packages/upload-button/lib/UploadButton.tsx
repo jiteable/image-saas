@@ -1,7 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { type HTMLAttributes } from "preact/compat";
 import { useRef } from "preact/hooks";
-export function UploadButton({ onClick, ...props }: HTMLAttributes<HTMLButtonElement>) {
+
+type CommonPreactComponentProps = {
+  setChildrenContainer: (ele: HTMLElement | null) => void
+}
+export function UploadButton({ onClick, setChildrenContainer, children, ...props }: HTMLAttributes<HTMLButtonElement> & CommonPreactComponentProps) {
 
   const inputRef = useRef<HTMLInputElement | null>(null)
 
@@ -16,7 +20,9 @@ export function UploadButton({ onClick, ...props }: HTMLAttributes<HTMLButtonEle
 
   return (
     <>
-      <button {...props} onClick={handleClick}>Click Me</button>
+      <button {...props} onClick={handleClick} ref={(e) => setChildrenContainer(e)}>
+        {children}
+      </button>
       <input
         tabIndex={-1}
         type="file"
