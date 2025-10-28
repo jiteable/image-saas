@@ -1,0 +1,16 @@
+{
+  "name": "@image-sass/api",
+  "version": "0.0.1",
+  "main": "dist/index.js",
+  "type": "module",
+  "scripts": {
+    "build": "tsc"
+  },
+  "files": ["dist"],
+  "devDependencies": {
+    "@trpc/client": "^11.6.0"
+  },
+  "peerDependencies": {
+    "@trpc/client": "^11.6.0"
+  }
+}
