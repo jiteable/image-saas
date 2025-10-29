@@ -1,16 +1,19 @@
-"use client"
+"use client";
 
-import { useSession, SessionProvider as NextAuthProvider } from "next-auth/react"
+import {
+  useSession,
+  SessionProvider as NextAuthProvider,
+} from "next-auth/react";
 
 export function UserInfo() {
-  const session = useSession()
+  const session = useSession();
 
-  return (<div>
-    {session.data?.user?.name}
-  </div>
-  )
+  console.log(session);
+
+  return <div>{session.data?.user?.name}</div>;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function SessionProvider(props: any) {
-  return <NextAuthProvider {...props}></NextAuthProvider>
+  return <NextAuthProvider {...props}></NextAuthProvider>;
 }
