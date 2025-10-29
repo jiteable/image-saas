@@ -3,7 +3,7 @@
 
 import { Uppy } from "@uppy/core"
 import AWSS3 from "@uppy/aws-s3"
-import { useState } from "react";
+import { ReactNode, useEffect, useState } from "react";
 import { trpcClientReact, trpcPureClient } from "@/utils/api"
 import { Button } from "@/components/ui/button";
 import { UploadButton } from "@/components/feature/UploadButton";
@@ -16,6 +16,14 @@ import { MoveDown, MoveUp, Settings } from "lucide-react";
 import Link from "next/link";
 import { use } from "react";
 export default function AppPage({ params }: { params: Promise<{ id: string }> }) { // 添加 async 关键字
+
+  const { data: apps, isPending } = trpcClientReact.apps.listApps.useQuery(void 0, {
+    refetchOnReconnect: false,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false
+  })
+
+  const currentApp = apps?.filter((app) => app.id === appId)[0]
 
   const { id: appId } = use(params);
 
@@ -51,8 +59,28 @@ export default function AppPage({ params }: { params: Promise<{ id: string }> })
 
   const [orderBy, setOrderBy] = useState<Exclude<FilesOrderByColumn, undefined>>({ field: "createdAt", order: 'desc' })
 
-  return (
-    <div className="mx-auto h-full">
+  let children: ReactNode
+
+  if (isPending) {
+    children = <div>Loading...</div>
+  } else if (!currentApp) {
+    children = <div className="flex flex-col mt-10 p-4 border rounded-md max-w-48 mx-auto items-center">
+      <p className="text-lg">
+        App Not Exist
+      </p>
+      <p className="text-sm">Chose another one</p>
+      <div className="flex flex-col gap-4 items-center">
+        {
+          apps?.map((app) => (
+            <Button key={app.id} asChild variant='link'>
+              <Link href={`/dashboard/apps/${app.id}`}>{app.name}</Link>
+            </Button>
+          ))
+        }
+      </div>
+    </div>
+  } else {
+    children = <div className="mx-auto h-full">
       <div className="flex container justify-between items-center h-[60px]">
         <Button onClick={() => {
           setOrderBy(current => ({
@@ -91,6 +119,8 @@ export default function AppPage({ params }: { params: Promise<{ id: string }> })
       </Dropzone>
 
       <UploadPreview uppy={uppy}></UploadPreview>
-    </div >
-  );
+    </div>
+  }
+
+  return children
 }
