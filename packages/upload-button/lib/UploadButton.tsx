@@ -1,17 +1,24 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { type HTMLAttributes } from "preact/compat";
-import { useRef } from "preact/hooks";
+import { MutableRef, useRef } from "preact/hooks";
 
 type CommonPreactComponentProps = {
   setChildrenContainer: (ele: HTMLElement | null) => void
 }
+
+export type UploadButtonProps = HTMLAttributes<HTMLButtonElement> & CommonPreactComponentProps & {
+  onFileChosed: (files: File | File[]) => void;
+  inputRef?: MutableRef<HTMLInputElement | null>
+}
+
 export function UploadButton({
   onClick,
   setChildrenContainer,
   children,
   onFileChosed,
+  inputRef: inputRefFromProps,
   ...props
-}: HTMLAttributes<HTMLButtonElement> & CommonPreactComponentProps & { onFileChosed: (files: File | File[]) => void }) {
+}: UploadButtonProps) {
 
   const inputRef = useRef<HTMLInputElement | null>(null)
 
@@ -32,7 +39,12 @@ export function UploadButton({
       <input
         tabIndex={-1}
         type="file"
-        ref={inputRef}
+        ref={(e) => {
+          inputRef.current = e
+          if (inputRefFromProps?.current) {
+            inputRefFromProps.current = e
+          }
+        }}
         onChange={(e) => {
           const filesFromEvent = (e.target as HTMLInputElement).files
 

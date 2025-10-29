@@ -1,6 +1,6 @@
 <template>
   <div>
-    <VueUploadButton>
+    <VueUploadButton :onFileUploaded="onFiles" :uploader="uploader">
       assdd
     </VueUploadButton>
     <img :src="uploaded" alt="">
@@ -13,8 +13,10 @@ import { UploadButton } from "@image-saas/upload-button"
 import { connect } from "@image-saas/preact-vue-connect"
 import { render, h } from 'preact'
 import { createUploader } from "@image-saas/uploader"
+import { UploadButtonWithUploader } from "@image-saas/upload-button"
 
-const VueUploadButton = connect(UploadButton)
+
+const VueUploadButton = connect(UploadButtonWithUploader)
 
 const containerRef = ref()
 
@@ -40,18 +42,7 @@ const uploader = createUploader(async (file) => {
 
 const uploaded = ref('')
 
-uploader.on('upload-success', (file, resp) => {
-  uploaded.value = resp.uploadUrl
-})
-
-function onFiles(files) {
-  uploader.addFiles(
-    files.map((file) => ({
-      data: file
-    }))
-  )
-
-  uploader.upload()
+function onFileUploaded(url) {
+  uploaded.value = url
 }
-
 </script>
