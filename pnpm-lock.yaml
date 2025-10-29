@@ -204,6 +204,9 @@ importers:
 
   examples/nuxt:
     dependencies:
+      '@image-saas/dropzone':
+        specifier: 'workspace: *'
+        version: link:../../packages/dropzone
       '@image-saas/preact-vue-connect':
         specifier: 'workspace: *'
         version: link:../../packages/preact-vue-connect

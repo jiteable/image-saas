@@ -20,6 +20,7 @@
     "@image-saas/upload-button": "workspace:*",
     "@preact/preset-vite": "^2.9.3",
     "preact": "^10.27.2",
-    "@image-saas/uploader": "workspace: *"
+    "@image-saas/uploader": "workspace: *",
+    "@image-saas/dropzone": "workspace: *"
   }
 }

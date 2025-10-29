@@ -1,4 +1,4 @@
-import { Uppy, UppyFile } from "@uppy/core"
+import { Uppy } from "@uppy/core"
 import { UploadButton, UploadButtonProps } from "./UploadButton";
 import { useEffect, useRef } from "react";
 

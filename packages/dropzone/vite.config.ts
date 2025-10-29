@@ -14,7 +14,7 @@ export default defineConfig({
     },
     minify: false,
     rollupOptions: {
-      external: [...Object.keys(pkg.peerDependencies)]
+      external: [...Object.keys(pkg.peerDependencies), "preact/hooks"]
     }
   }
 })

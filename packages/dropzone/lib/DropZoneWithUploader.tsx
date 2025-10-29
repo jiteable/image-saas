@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   Uppy,
-  UppyFile,
 } from "@uppy/core";
 import { Dropzone, DropzoneProps } from "./DropZone";
 import { useEffect, useRef } from "preact/hooks";
