@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Uppy } from "@uppy/core"
 import { useEffect, useRef, useState } from "react";
 import { trpcClientReact, trpcPureClient, AppRouter } from "@/utils/api"
@@ -136,16 +137,16 @@ export function FileList({ uppy, orderBy, appId }: { uppy: Uppy, orderBy: FilesO
 
   // 将 return 语句移到函数内部
   return (
-    <ScrollArea>
+    <ScrollArea className="h-full @container">
       {isPending && <div className="text-center">Loading</div>}
-      <div className={cn("flex flex-wrap justify-center gap-4 relative container ")}>
+      <div className={cn("grid grid-cols-1 gap-4 @md:grid-cols-2 @lg:grid-cols-3 @2xl:grid-cols-5 relative container ")}>
 
         {
           uploadingFileIDs.length > 0 && uploadingFileIDs.map((id) => {
             const file = uppyFiles[id]
 
             return (
-              <div key={file.id} className="w-56 h-56 flex justify-center items-center border-red-500">
+              <div key={file.id} className="h-56 flex justify-center items-center border-red-500">
                 <LocalFileItem file={file.data as File}></LocalFileItem>
               </div>
             );
@@ -154,7 +155,7 @@ export function FileList({ uppy, orderBy, appId }: { uppy: Uppy, orderBy: FilesO
         {filesList?.map((file) => {
 
           return (
-            <div key={file.id} className="w-56 h-56 flex justify-center items-center border relative">
+            <div key={file.id} className="h-56 flex justify-center items-center border relative overflow-hidden">
               <div className="inset-0 absolute bg-background/30 opacity-0 transition-all hover:opacity-100 justify-center items-center flex">
                 <CopyUrl url={file.url}></CopyUrl>
                 <ViewImage url={`/image/${file.id}`} name={file.name} />
