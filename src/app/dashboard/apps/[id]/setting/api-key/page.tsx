@@ -7,6 +7,7 @@ import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover
 import { Input } from "@/components/ui/input"
 import { useState } from "react"
 import { use } from "react";
+import Link from "next/link"
 export default function ApiKeysPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params)
 
@@ -39,7 +40,9 @@ export default function ApiKeysPage({ params }: { params: Promise<{ id: string }
       <Popover>
         <PopoverTrigger asChild>
           <Button>
-            <Plus />
+            <Link href={`/dashboard/apps/${id}/setting/storage/new`}>
+              <Plus></Plus>
+            </Link>
           </Button>
         </PopoverTrigger>
         <PopoverContent>
