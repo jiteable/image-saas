@@ -27,13 +27,10 @@ export function DeleteFile({ fileId, onDeleteSuccess }: { fileId: string, onDele
   </Button>
 }
 
-export function CopyUrl({ url }: { url: string }) {
+export function CopyUrl({ onClick }: { onClick: (e: React.MouseEvent<HTMLButtonElement>) => void }) {
 
 
-  return <Button variant="ghost" onClick={() => {
-    copy(url)
-    toast('Url Copy Success')
-  }}>
+  return <Button variant="ghost" onClick={onClick}>
     <Copy />
   </Button >
 }

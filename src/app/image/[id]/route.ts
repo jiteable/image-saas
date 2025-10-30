@@ -74,10 +74,21 @@ export async function GET(request: NextRequest, context: { params: Promise<{ id:
 
     const image = sharp(byteArray)
 
+    const query = new URL(request.url).searchParams
+
+    let width = parseInt(query.get('width') || '')
+
+    width = width ?? 250
+
     image.resize({
-      width: 250,
-      height: 250
+      width: width
     })
+
+    let rotate = parseInt(query.get('rotate') || '')
+
+    rotate = rotate || 0
+
+    image.rotate(rotate)
 
     const buffer = await image.webp().toBuffer()
 
@@ -89,6 +100,7 @@ export async function GET(request: NextRequest, context: { params: Promise<{ id:
         "Cache-Control": "public, max-age=31536000, immutable"
       }
     })
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
     // 处理 S3 错误，特别是 NoSuchKey 错误
     if (error.name === 'NoSuchKey') {

@@ -15,6 +15,11 @@ import { FilesOrderByColumn } from "@/server/routes/file";
 import { MoveDown, MoveUp, Settings } from "lucide-react";
 import Link from "next/link";
 import { use } from "react";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { UrlMaker } from "./UrlMaker";
+import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
+import { id } from "zod/v4/locales";
+import { setMaxIdleHTTPParsers } from "http";
 export default function AppPage({ params }: { params: Promise<{ id: string }> }) { // 添加 async 关键字
 
   const { data: apps, isPending } = trpcClientReact.apps.listApps.useQuery(void 0, {
@@ -22,6 +27,8 @@ export default function AppPage({ params }: { params: Promise<{ id: string }> })
     refetchOnWindowFocus: false,
     refetchOnMount: false
   })
+
+  const [makingUrlImageId, setmakingUrlImageId] = useState<string | null>(null)
 
   const currentApp = apps?.filter((app) => app.id === appId)[0]
 
@@ -112,13 +119,29 @@ export default function AppPage({ params }: { params: Promise<{ id: string }> })
                 </div>)
             }
 
-              <FileList appId={appId} uppy={uppy} orderBy={orderBy}></FileList>
+              <FileList appId={appId} uppy={uppy} orderBy={orderBy} onMakeUrl={(id) => setmakingUrlImageId(id)}></FileList>
             </>
           }
         }
       </Dropzone>
 
       <UploadPreview uppy={uppy}></UploadPreview>
+      <Dialog open={Boolean(makingUrlImageId)} onOpenChange={(flag) => {
+        if (flag === false) {
+          setmakingUrlImageId(null)
+        }
+      }}>
+        <DialogContent className="max-w-4xl">
+          <VisuallyHidden>
+            <DialogTitle>Create App</DialogTitle>
+          </VisuallyHidden>
+          {
+            makingUrlImageId && (
+              <UrlMaker id={makingUrlImageId}></UrlMaker>
+            )
+          }
+        </DialogContent>
+      </Dialog>
     </div>
   }
 

@@ -12,7 +12,17 @@ import { type FilesOrderByColumn } from "@/server/routes/file";
 import { DeleteFile, CopyUrl, ViewImage } from "./FileItemAction";
 
 type FileResult = inferRouterOutputs<AppRouter>['file']['listFiles']
-export function FileList({ uppy, orderBy, appId }: { uppy: Uppy, orderBy: FilesOrderByColumn, appId: string }) {
+export function FileList({
+  uppy,
+  orderBy,
+  appId,
+  onMakeUrl
+}: {
+  uppy: Uppy,
+  orderBy: FilesOrderByColumn,
+  appId: string,
+  onMakeUrl: (id: string) => void
+}) {
 
 
   const { data: infiniteQueryData, isPending, fetchNextPage } = trpcClientReact.file.infiniteQueryFiles.useInfiniteQuery({
@@ -157,7 +167,7 @@ export function FileList({ uppy, orderBy, appId }: { uppy: Uppy, orderBy: FilesO
           return (
             <div key={file.id} className="h-56 flex justify-center items-center border relative overflow-hidden">
               <div className="inset-0 absolute bg-background/30 opacity-0 transition-all hover:opacity-100 justify-center items-center flex">
-                <CopyUrl url={file.url}></CopyUrl>
+                <CopyUrl onClick={() => onMakeUrl(file.id)} ></CopyUrl>
                 <ViewImage url={`/image/${file.id}`} name={file.name} />
                 <DeleteFile fileId={file.id} onDeleteSuccess={handleFileDelete}></DeleteFile>
               </div>
