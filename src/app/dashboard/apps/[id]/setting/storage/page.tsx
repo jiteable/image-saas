@@ -4,6 +4,8 @@ import { trpcClientReact } from "@/utils/api"
 import { Button } from "@/components/ui/button"
 import { Plus } from "lucide-react"
 import { use } from "react";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+
 export default function StoragePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
 
@@ -37,17 +39,34 @@ export default function StoragePage({ params }: { params: Promise<{ id: string }
         <Plus></Plus>
       </Button>
     </div>
-    {storages?.map(storage => {
-      return <div key={storage.id} className="border p-4 flex justify-center items-center">
-        <span>
-          {storage.name}
-        </span>
-        <Button disabled={storage.id === currentApp?.storageId} onClick={() => {
-          mutate({ appId: id, storageId: storage.id })
-        }}>
-          {storage.id === currentApp?.storageId ? 'Used' : "Use"}
-        </Button>
-      </div>
-    })}
+    <Accordion type="single" collapsible>
+      {storages?.map(storage => {
+        return <AccordionItem key={storage.id} value={storage.id.toString()}>
+          <AccordionTrigger className={storage.id === currentApp?.storageId ? 'text-chart-2' : ''}>{storage.name}</AccordionTrigger>
+          <AccordionContent>
+            <div className="text-lg mb-6">
+              <div className="flex justify-between items-center">
+                <span>region</span>
+                <span>{storage.configuration.region}</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span>bucket</span>
+                <span>{storage.configuration.bucket}</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span>apiEndpoint</span>
+                <span>{storage.configuration.apiEndpoint}</span>
+              </div>
+            </div>
+
+            <Button disabled={storage.id === currentApp?.storageId} onClick={() => {
+              mutate({ appId: id, storageId: storage.id })
+            }}>
+              {storage.id === currentApp?.storageId ? 'Used' : "Use"}
+            </Button>
+          </AccordionContent>
+        </AccordionItem>
+      })}
+    </Accordion>
   </div>
 }
