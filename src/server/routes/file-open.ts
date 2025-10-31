@@ -7,9 +7,9 @@ import {
   PutObjectCommandInput
 } from "@aws-sdk/client-s3"
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner"
-import { files } from "../db/schema";
+import { files, apps } from "../db/schema";
 import { db } from "../db/db";
-import { desc, asc, sql, eq, isNull, and } from 'drizzle-orm';
+import { desc, asc, sql, eq, isNull, and, count } from 'drizzle-orm';
 import { filesCanOrderByColumns } from "../db/validate-schema";
 
 const bucketName = process.env.BUCKET_NAME;
@@ -48,7 +48,9 @@ export const fileOpenRoutes = router({
       const isoString = date.toISOString();
       const dateString = isoString.split("T")[0];
 
-      const { app } = ctx
+      const { app, user } = ctx
+
+      const isFreePlan = user.plan === "free"
 
       if (!app || !app.storage) {
         throw new TRPCError({
@@ -57,6 +59,23 @@ export const fileOpenRoutes = router({
       }
 
       if (app.userId !== ctx.user.id) {
+        throw new TRPCError({
+          code: 'FORBIDDEN'
+        })
+      }
+
+      // const alreadyUploadedFilesCount = await db.query.files.findFirst({
+      //   where: (apps, { eq, and, isNull }) => and(eq()),
+      //   columns: {}
+      // })
+
+      const alreadyUploadedFilesCountResult = await db.select({ count: count() })
+        .from(apps)
+        .where(and(eq(apps.id, app.id), isNull(apps.deletedAt)))
+
+      const countNum = alreadyUploadedFilesCountResult[0].count
+
+      if (countNum >= 100) {
         throw new TRPCError({
           code: 'FORBIDDEN'
         })

@@ -20,6 +20,7 @@ import { UrlMaker } from "./UrlMaker";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { id } from "zod/v4/locales";
 import { setMaxIdleHTTPParsers } from "http";
+import { UpgradeDialog } from "./Upgrade";
 export default function AppPage({ params }: { params: Promise<{ id: string }> }) { // 添加 async 关键字
 
   const { data: apps, isPending } = trpcClientReact.apps.listApps.useQuery(void 0, {
@@ -34,18 +35,28 @@ export default function AppPage({ params }: { params: Promise<{ id: string }> })
 
   const { id: appId } = use(params);
 
+  const [showUpgrade, setShowUpgrade] = useState(false)
+
   const [uppy] = useState<Uppy>(() => {
     const uppyInstance = new Uppy();
     uppyInstance.use(AWSS3, {
       shouldUseMultipart: false,
-      getUploadParameters(file) {
-        return trpcPureClient.file.createPresignedUrl.mutate({
-          filename:
-            file.data instanceof File ? file.data.name : "test",
-          contentType: file.data.type || "",
-          size: file.size ?? 0,
-          appId: appId
-        })
+      async getUploadParameters(file) {
+
+        try {
+          const result = await trpcPureClient.file.createPresignedUrl.mutate({
+            filename:
+              file.data instanceof File ? file.data.name : "test",
+            contentType: file.data.type || "",
+            size: file.size ?? 0,
+            appId: appId
+          })
+
+          return result
+        } catch (err) {
+          setShowUpgrade(true)
+          throw err
+        }
       }
     })
     return uppyInstance;
@@ -142,6 +153,7 @@ export default function AppPage({ params }: { params: Promise<{ id: string }> })
           }
         </DialogContent>
       </Dialog>
+      <UpgradeDialog open={showUpgrade} onOpenChange={(f) => setShowUpgrade(f)}></UpgradeDialog>
     </div>
   }
 
