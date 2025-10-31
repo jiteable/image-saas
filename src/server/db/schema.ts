@@ -207,3 +207,20 @@ export const actionTokenRelations = relations(actionToken, ({ one }) => ({
     references: [users.email]
   })
 }))
+
+
+export const orders = pgTable("orders", {
+  sessionId: varchar("sessionId", { length: 255 }).primaryKey(),
+  status: varchar("status", {
+    enum: ["created", "canceled", "completed"],
+  }).notNull(),
+  createdAt: timestamp("created_at", { mode: "date" }).defaultNow(),
+  userId: text("id").notNull(),
+});
+
+export const ordersRelation = relations(orders, ({ one }) => ({
+  user: one(users, {
+    fields: [orders.userId],
+    references: [users.id],
+  }),
+}));
