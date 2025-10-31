@@ -5,8 +5,7 @@ import { db } from "@/server/db/db";
 import { orders, users } from "@/server/db/schema";
 
 const stripe = new Stripe(
-  "sk_test_51OxJEERpNCX4mrCtH0CK84iMV2ZgEKLtbrAwnJ2YM48AT0fOaUXUS1FFIJoOnlTGDrOzzOthfsFMcWFnUf18OdC700goEMDYqe"
-);
+  process.env.STRIPE_SECRET_KEY!);
 export async function POST(request: NextRequest) {
 
   const payload = await request.text();
@@ -18,7 +17,7 @@ export async function POST(request: NextRequest) {
     event = stripe.webhooks.constructEvent(
       payload,
       sig ?? "",
-      "whsec_af21a56affa68ddac7d32619197632aa40fc4ebbd7507cba26eb09bc73a35bc3"
+      process.env.STRIPE_WEBHOOK_SECRET!
     );
   } catch (err) {
     console.error(err);

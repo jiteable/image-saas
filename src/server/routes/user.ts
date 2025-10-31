@@ -18,14 +18,14 @@ export const userRoute = router({
   upgrade: protectedProcedure.mutation(async ({ ctx }) => {
 
     const stripe = new Stripe(
-      "sk_test_51OxJEERpNCX4mrCtH0CK84iMV2ZgEKLtbrAwnJ2YM48AT0fOaUXUS1FFIJoOnlTGDrOzzOthfsFMcWFnUf18OdC700goEMDYqe"
+      process.env.STRIPE_SECRET_KEY!
     );
 
     const session = await stripe.checkout.sessions.create({
       line_items: [
         {
           // Provide the exact Price ID (for example, pr_1234) of the product you want to sell
-          price: "prod_TKs1CGqIQwTXjP",
+          price: process.env.STRIPE_PRODUCT_PRICE!,
           quantity: 1,
         },
       ],
