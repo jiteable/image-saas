@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Uppy, State } from "@uppy/core"
 import { useMemo } from "react"
 import { useSyncExternalStoreWithSelector } from "use-sync-external-store/shim/with-selector"

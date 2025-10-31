@@ -35,7 +35,7 @@ export function FileItem({ url, name, isImage }: { url: string; name: string; is
         />
       ) : (
         <Image
-          src="/public/unknown-file-types.png"
+          src="/unknown-file-types.png"
           alt="unknown file type"
           width={100}
           height={100}

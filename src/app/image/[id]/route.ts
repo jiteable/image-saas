@@ -78,7 +78,10 @@ export async function GET(request: NextRequest, context: { params: Promise<{ id:
 
     let width = parseInt(query.get('width') || '')
 
-    width = width ?? 250
+    // 当 width 为 NaN 或非正数时，默认设为 250
+    if (isNaN(width) || width <= 0) {
+      width = 250
+    }
 
     image.resize({
       width: width
