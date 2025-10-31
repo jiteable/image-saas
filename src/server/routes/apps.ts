@@ -2,12 +2,31 @@ import { createAppSchema } from "../db/validate-schema";
 import { protectedProcedure, router } from "../trip";
 import { db } from "../db/db";
 import { apps, storageConfiguration } from "../db/schema";
-import { and, desc, eq, isNull } from "drizzle-orm"; // 添加 isNull 导入
+import { and, desc, eq, isNull, count } from "drizzle-orm"; // 添加 isNull 导入
 import z from "zod";
 import { TRPCError } from "@trpc/server";
 
 export const appsRoute = router({
   createApp: protectedProcedure.input(createAppSchema.pick({ name: true, description: true })).mutation(async ({ ctx, input }) => {
+
+    const isFreePlan = ctx.plan
+
+    if (isFreePlan) {
+      const appsCountResult = await db.select({ count: count() }).from(apps).where(
+        and(eq(apps.userId, ctx.session!.user!.id),
+          isNull(apps.deletedAt)
+        )
+      )
+
+      const appCount = appsCountResult[0].count
+
+      if (appCount >= 1) {
+        throw new TRPCError({
+          code: 'FORBIDDEN'
+        })
+      }
+    }
+
     // 首先检查是否存在默认存储配置，如果不存在则创建一个
     let defaultStorage = await db.query.storageConfiguration.findFirst({
       where: (storage, { eq, and }) => and(

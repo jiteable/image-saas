@@ -75,17 +75,19 @@ export const fileRoutes = router({
       //   where: (apps, { eq, and, isNull }) => and(eq()),
       //   columns: {}
       // })
+      if (isFreePlan) {
 
-      const alreadyUploadedFilesCountResult = await db.select({ count: count() })
-        .from(apps)
-        .where(and(eq(apps.id, app.id), isNull(apps.deletedAt)))
+        const alreadyUploadedFilesCountResult = await db.select({ count: count() })
+          .from(apps)
+          .where(and(eq(apps.id, app.id), isNull(apps.deletedAt)))
 
-      const countNum = alreadyUploadedFilesCountResult[0].count
+        const countNum = alreadyUploadedFilesCountResult[0].count
 
-      if (isFreePlan && countNum >= 100) {
-        throw new TRPCError({
-          code: 'FORBIDDEN'
-        })
+        if (countNum >= 100) {
+          throw new TRPCError({
+            code: 'FORBIDDEN'
+          })
+        }
       }
 
 
