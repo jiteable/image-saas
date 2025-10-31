@@ -85,7 +85,16 @@ export default function AppPage({ params }: { params: Promise<{ id: string }> })
   let children: ReactNode
 
   if (isPending) {
-    children = <div>Loading...</div>;
+    children = (
+      <div className="max-w-7xl mx-auto h-full px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-center items-center h-full">
+          <div className="text-center">
+            <div className="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-gray-900 mb-4"></div>
+            <p className="text-xl">Loading application...</p>
+          </div>
+        </div>
+      </div>
+    );
   } else if (!currentApp) {
     children = (
       <div className="flex flex-col mt-10 p-4 border rounded-md max-w-48 mx-auto items-center">
@@ -104,8 +113,8 @@ export default function AppPage({ params }: { params: Promise<{ id: string }> })
     );
   } else {
     children = (
-      <div className="mx-auto h-full">
-        <div className="container flex justify-between items-center h-[60px]">
+      <div className="max-w-7xl mx-auto h-full px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between items-center h-[60px] py-4">
           <Button
             onClick={() => {
               setOrderBy((current) => ({

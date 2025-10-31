@@ -39,13 +39,14 @@ export default function CreateApp() { // 添加 async 关键字
   }
 
   return (
-    <div className="h-full flex justify-center items-center">
-      <form className="w-full max-w-md flex flex-col gap-4" action={createApp}>
+    <div className="w-full">
+      <form className="w-full flex flex-col gap-4" action={createApp}>
         <h1 className="text-center text-2xl font-bold">Create App</h1>
         <Input name="name" placeholder="App Name" minLength={3} required></Input>
         <Textarea
           name="description"
           placeholder="Description"
+          className="min-h-[120px]"
         ></Textarea>
         <SubmitButton></SubmitButton>
       </form>
