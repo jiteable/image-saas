@@ -23,6 +23,8 @@ import { setMaxIdleHTTPParsers } from "http";
 import { UpgradeDialog } from "./Upgrade";
 export default function AppPage({ params }: { params: Promise<{ id: string }> }) { // 添加 async 关键字
 
+  const { id: appId } = use(params);
+
   const { data: apps, isPending } = trpcClientReact.apps.listApps.useQuery(void 0, {
     refetchOnReconnect: false,
     refetchOnWindowFocus: false,
@@ -39,8 +41,6 @@ export default function AppPage({ params }: { params: Promise<{ id: string }> })
   const [makingUrlImageId, setmakingUrlImageId] = useState<string | null>(null)
 
   const currentApp = apps?.filter((app) => app.id === appId)[0]
-
-  const { id: appId } = use(params);
 
   const [showUpgrade, setShowUpgrade] = useState(false)
 

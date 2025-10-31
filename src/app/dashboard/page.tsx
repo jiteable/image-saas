@@ -35,7 +35,7 @@ export default function DashboardAppList() {
                                 </p>
                             </div>
                             <div>
-                                <Button asChild variant="destructive">
+                                <Button asChild>
                                     <Link href={`/dashboard/apps/${app.id}`}>
                                         Go
                                     </Link>
@@ -43,7 +43,7 @@ export default function DashboardAppList() {
                             </div>
                         </div>
                     ))}
-                    {/* <Button asChild>
+                    <Button asChild>
                         <Link
                             href="/dashboard/apps/new"
                             onClick={(e) => {
@@ -53,7 +53,7 @@ export default function DashboardAppList() {
                         >
                             Create App
                         </Link>
-                    </Button> */}
+                    </Button>
                 </div>
             )}
         </div>
