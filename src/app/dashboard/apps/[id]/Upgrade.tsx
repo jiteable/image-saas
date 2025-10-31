@@ -14,6 +14,8 @@ export function UpgradeDialog({
   open: boolean;
   onOpenChange: (f: boolean) => void;
 }) {
+
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
