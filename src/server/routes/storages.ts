@@ -2,13 +2,11 @@ import { protectedProcedure, router } from "../trip";
 import { db } from "../db/db";
 import z from "zod"
 import { storageConfiguration } from "../db/schema";
-import { isConfig } from "drizzle-orm";
-
 
 export const storagesRoute = router({
   listStorages: protectedProcedure.query(async ({ ctx }) => {
     return db.query.storageConfiguration.findMany({
-      where: (storages, { eq, and, isNull }) => and(eq(storages.userId, ctx.session.user.id), isNull(storages.deletedAt))
+      where: (storages, { eq, and, isNull }) => and(eq(storages.userId, ctx.session!.user!.id), isNull(storages.deletedAt))
     })
   }),
 
@@ -26,7 +24,7 @@ export const storagesRoute = router({
     const result = await db.insert(storageConfiguration).values({
       name: input.name,
       configuration: configuration,
-      userId: ctx.session.user.id
+      userId: ctx.session!.user!.id
     }).returning()
 
     return result[0]
