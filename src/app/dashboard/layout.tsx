@@ -4,6 +4,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuLabel, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { ThemeProvider } from "./ThemeProvider";
 import { ThemeToggle } from "./ThemeToggle";
+import { Plan } from "./Plan";
 export default async function DashBoardLayout({
   children,
   nav
@@ -25,10 +26,13 @@ export default async function DashBoardLayout({
           <ThemeToggle></ThemeToggle>
           <DropdownMenu>
             <DropdownMenuTrigger>
-              <Avatar>
-                <AvatarImage src={session.user?.image ?? undefined}></AvatarImage>
-                <AvatarFallback>{session.user?.name?.substring(0, 2)}</AvatarFallback>
-              </Avatar>
+              <div className="relative">
+                <Avatar>
+                  <AvatarImage src={session.user?.image ?? undefined}></AvatarImage>
+                  <AvatarFallback>{session.user?.name?.substring(0, 2)}</AvatarFallback>
+                </Avatar>
+                <Plan></Plan>
+              </div>
             </DropdownMenuTrigger>
             <DropdownMenuContent>
               <DropdownMenuLabel>{session.user?.name ?? ""}</DropdownMenuLabel>

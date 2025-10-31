@@ -1,14 +1,26 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import CredentialsProvider from 'next-auth/providers/credentials'
 import { db } from '../db/db'
-import type { NextAuthOptions } from 'next-auth'
+import type { DefaultSession, DefaultUser, NextAuthOptions } from 'next-auth'
 import {
   getServerSession as nextAuthGetServerSession,
 } from "next-auth";
 import { and, eq } from "drizzle-orm";
 import { users, actionToken } from '../db/schema';
 import { v4 as uuid } from 'uuid';
+import { DrizzleAdapter } from "@auth/drizzle-adapter";
+
+declare module "next-auth" {
+  interface Session extends DefaultSession {
+    user?: {
+      id: string;
+    } & DefaultSession["user"]
+  }
+
+}
 
 export const authOptions: NextAuthOptions = {
+  adapter: DrizzleAdapter(db),
   secret: process.env.NEXTAUTH_SECRET,
   session: {
     strategy: 'jwt',
@@ -33,7 +45,7 @@ export const authOptions: NextAuthOptions = {
         console.log("aa", credentials)
 
         // 查找用户
-        let userResult = await db.select().from(users).where(eq(users.email, credentials.email as string));
+        const userResult = await db.select().from(users).where(eq(users.email, credentials.email as string));
         let user = userResult.length > 0 ? userResult[0] : null;
 
         // 如果提供了密码，验证密码
@@ -88,6 +100,7 @@ export const authOptions: NextAuthOptions = {
               id: user.id,
               email: user.email,
               name: user.name,
+              plan: user.plan || 'free'
             }
           }
 
@@ -106,6 +119,7 @@ export const authOptions: NextAuthOptions = {
             id: user.id,
             email: user.email,
             name: user.name,
+            plan: user.plan || 'free'
           }
         }
 
@@ -155,6 +169,7 @@ export const authOptions: NextAuthOptions = {
             id: user.id,
             email: user.email,
             name: user.name,
+            plan: user.plan || 'free'
           }
         }
 
@@ -171,6 +186,7 @@ export const authOptions: NextAuthOptions = {
         token.id = user.id
         token.email = user.email
         token.name = user.name
+        token.plan = user.plan
       }
 
       return token
@@ -183,6 +199,7 @@ export const authOptions: NextAuthOptions = {
         session.user.email = token.email || session.user.email;
         // image可能不存在，所以使用可选链
         session.user.image = token.image || session.user.image;
+        session.plan = token.plan
       }
 
       console.log("Session callback - final session:", JSON.stringify(session, null, 2));
