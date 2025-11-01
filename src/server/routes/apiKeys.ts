@@ -4,6 +4,7 @@ import z from "zod"
 import { apiKeys } from "../db/schema";
 import { v4 as uuid } from "uuid";
 import { TRPCError } from "@trpc/server";
+import { eq } from "drizzle-orm";
 
 export const apiKeysRoute = router({
   listapiKeys: protectedProcedure.input(z.object({ appId: z.string() })).query(async ({ ctx, input }) => {
@@ -52,4 +53,32 @@ export const apiKeysRoute = router({
 
     return result[0]
   }),
+
+  deleteApiKey: protectedProcedure.input(z.object({
+    id: z.number()
+  })).mutation(async ({ ctx, input }) => {
+    const apiKey = await db.query.apiKeys.findFirst({
+      where: (apiKeys, { eq, isNull }) => eq(apiKeys.id, input.id),
+      with: {
+        app: {
+          with: {
+            user: true
+          }
+        }
+      }
+    });
+
+    if (!apiKey || apiKey.app.userId !== ctx.session.user?.id) {
+      throw new TRPCError({
+        code: 'FORBIDDEN'
+      });
+    }
+
+    const result = await db.update(apiKeys)
+      .set({ deletedAt: new Date() })
+      .where(eq(apiKeys.id, input.id))
+      .returning();
+
+    return result[0];
+  })
 })

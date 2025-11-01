@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/popover";
 import { trpcClientReact } from "@/utils/api";
 import copy from "copy-to-clipboard";
-import { Copy, Eye, Plus } from "lucide-react";
+import { Copy, Eye, Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { use } from "react";
@@ -59,6 +59,22 @@ export default function ApiKeysPage({ params }: { params: Promise<{ id: string }
       });
     },
   });
+
+  const { mutate: deleteApiKey } = trpcClientReact.apiKeys.deleteApiKey.useMutation({
+    onSuccess: (_, variables) => {
+      utils.apiKeys.listapiKeys.setData({ appId: id }, (prev) => {
+        if (!prev) {
+          return prev;
+        }
+        return prev.filter(apiKey => apiKey.id !== variables.id);
+      });
+      toast("API key deleted successfully!");
+    },
+    onError: () => {
+      toast("Failed to delete API key");
+    }
+  });
+
 
   const utils = trpcClientReact.useUtils();
 
@@ -104,8 +120,23 @@ export default function ApiKeysPage({ params }: { params: Promise<{ id: string }
       <Accordion type="single" collapsible>
         {apiKeys?.map((apiKey) => {
           return (
-            <AccordionItem key={apiKey.id} value={apiKey.id.toString()}>
-              <AccordionTrigger>{apiKey.name}</AccordionTrigger>
+            <AccordionItem key={apiKey.id} value={apiKey.id.toString()} className="relative pr-12">
+              <AccordionTrigger>
+                <div>
+                  {apiKey.name}
+                </div>
+                <div className="absolute right-0 top-1/2 transform -translate-y-1/2 flex items-center">
+                  <span
+                    className="p-2 hover:bg-gray-100 rounded-full cursor-pointer transition-colors duration-200"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      deleteApiKey({ id: apiKey.id });
+                    }}
+                  >
+                    <Trash2 className="w-4 h-4 text-muted-foreground hover:text-red-500" />
+                  </span>
+                </div>
+              </AccordionTrigger>
               <AccordionContent>
                 <div className="flex justify-between text-lg mb-4">
                   <span>Client Id</span>
