@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { Uppy } from "@uppy/core"
@@ -15,10 +14,10 @@ import { FilesOrderByColumn } from "@/server/routes/file";
 import { MoveDown, MoveUp, Settings } from "lucide-react";
 import Link from "next/link";
 import { use } from "react";
-import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
-import { UrlMaker } from "./UrlMaker";
-import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { UpgradeDialog } from "./Upgrade";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
+import { UrlMaker } from "./UrlMaker";
 export default function AppPage({ params }: { params: Promise<{ id: string }> }) { // 添加 async 关键字
 
   const { id: appId } = use(params);
@@ -36,7 +35,6 @@ export default function AppPage({ params }: { params: Promise<{ id: string }> })
     refetchOnWindowFocus: false,
   });
 
-  const [makingUrlImageId, setmakingUrlImageId] = useState<string | null>(null)
 
   const currentApp = apps?.filter((app) => app.id === appId)[0]
 
@@ -81,6 +79,8 @@ export default function AppPage({ params }: { params: Promise<{ id: string }> })
   })
 
   const [orderBy, setOrderBy] = useState<Exclude<FilesOrderByColumn, undefined>>({ field: "createdAt", order: 'desc' })
+
+  const [makingUrlImageId, setmakingUrlImageId] = useState<string | null>(null)
 
   let children: ReactNode
 
@@ -163,12 +163,29 @@ export default function AppPage({ params }: { params: Promise<{ id: string }> })
                   appId={appId}
                   uppy={uppy}
                   orderBy={orderBy}
+                  onMakeUrl={(id) => setmakingUrlImageId(id)}
                 ></FileList>
               </>
             );
           }}
         </Dropzone>
         <UploadPreview uppy={uppy}></UploadPreview>
+        <Dialog open={Boolean(makingUrlImageId)} onOpenChange={(flag) => {
+          if (flag === false) {
+            setmakingUrlImageId(null)
+          }
+        }}>
+          <DialogContent className="max-w-4xl">
+            <VisuallyHidden>
+              <DialogTitle>Create App</DialogTitle>
+            </VisuallyHidden>
+            {
+              makingUrlImageId && (
+                <UrlMaker id={makingUrlImageId}></UrlMaker>
+              )
+            }
+          </DialogContent>
+        </Dialog>
         <UpgradeDialog
           open={showUpgrade}
           onOpenChange={(f) => setShowUpgrade(f)}
@@ -179,3 +196,4 @@ export default function AppPage({ params }: { params: Promise<{ id: string }> })
 
   return children;
 }
+

@@ -30,16 +30,14 @@ export function DeleteFile({
   );
 }
 
-export function CopyUrl({ url }: { url: string }) {
-  return (
-    <Button
-      variant="ghost"
-      onClick={() => {
-        copy(url);
-        toast("Url Copy Succeed!");
-      }}
-    >
-      <Copy />
-    </Button>
-  );
+export function CopyUrl({ onClick }: { onClick: (e: React.MouseEvent<HTMLButtonElement>) => void }) {
+
+
+  return <Button variant="ghost" onClick={onClick}>
+    <Copy />
+  </Button >
 }
+
+
+
+

@@ -6,26 +6,25 @@ import copy from "copy-to-clipboard";
 import { toast } from "sonner";
 export function UrlMaker({ id }: { id: string }) {
   const [width, setWidth] = useState(100)
-
   const [rotate, setRotate] = useState(0)
-
+  const [previewRotate, setPreviewRotate] = useState(0)
   const [url, setUrl] = useState(`/image/${id}?width=${width}&rotate=${rotate}`)
 
   return (
     <div>
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between mr-2">
         <div className="flex items-center gap-2">
           <span>Rotate:</span>
           <Slider
             className="relatice flex h-5 w-[200px] touch-none select-none items-center"
-            value={[rotate]}
-            onValueChange={(v) => setRotate(v[0] ?? 0)}
+            value={[previewRotate]}
+            onValueChange={(v) => setPreviewRotate(v[0] ?? 0)}
             max={180}
             min={-180}
             step={5}
           >
-
           </Slider>
+          <span className="w-12">{previewRotate}°</span>
         </div>
         <div>
           <label htmlFor="widthInput" className="mr-2">
@@ -41,11 +40,15 @@ export function UrlMaker({ id }: { id: string }) {
             onChange={(e) => setWidth(Number(e.target.value))}
           />
         </div>
-        <Button onClick={() => setUrl(`/image/${id}?width=${width}&rotate=${rotate}`)}>Make</Button>
+        <Button onClick={() => {
+          setRotate(previewRotate)
+          setUrl(`/image/${id}?width=${width}&rotate=${previewRotate}`)
+          setPreviewRotate(0)
+        }}>Make</Button>
       </div>
-      <div>
+      <div className="m-10">
         <div className="flex justify-center items-center">
-          <img src={url} alt="generate url" className="max-w-full max-h-[60vh]" />
+          <img src={url} alt="generate url" className="max-w-full max-h-[60vh]" style={{ transform: `rotate(${previewRotate}deg)` }} />
         </div>
       </div>
       <div className="flex justify-between items-center gap-2">

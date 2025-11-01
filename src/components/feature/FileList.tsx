@@ -1,28 +1,31 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Uppy } from "@uppy/core"
-import { useEffect, useRef, useState } from "react";
-import { trpcClientReact, trpcPureClient, AppRouter } from "@/utils/api"
-import { cn } from "@/lib/utils";
 import { useUppyState } from "@/app/dashboard/hooks/useUppyState";
+import { cn } from "@/lib/utils";
+import { trpcClientReact, trpcPureClient, AppRouter } from "@/utils/api";
+import Uppy from "@uppy/core";
+import { useEffect, useRef, useState } from "react";
 import { LocalFileItem, RemoteFileItem } from "./FileItem";
 import { inferRouterOutputs } from "@trpc/server";
 import { Button } from "../ui/button";
 import { ScrollArea } from "../ui/scroll-area";
 import { type FilesOrderByColumn } from "@/server/routes/file";
-import { DeleteFile, CopyUrl } from "./FileItemAction";
+import { CopyUrl, DeleteFile } from "./FileItemAction";
 
-type FileResult = inferRouterOutputs<AppRouter>['file']['listFiles']
+type FileResult = inferRouterOutputs<AppRouter>["file"]["listFiles"];
+
 export function FileList({
   uppy,
   orderBy,
   appId,
+  onMakeUrl
 }: {
   uppy: Uppy;
   orderBy: FilesOrderByColumn;
   appId: string;
+  onMakeUrl: (id: string) => void;
 }) {
   const queryKey = {
-    limit: 10,
+    limit: 8,
     orderBy,
     appId,
   };
@@ -88,12 +91,10 @@ export function FileList({
       }
     };
 
-    const uploadProgressHandler = (uploadID: string, files: any[]) => {
-      // 获取所有文件的ID
-      const fileIDs = files.map(file => file.id);
+    const uploadProgressHandler = (data: any) => {
       setUploadingFileIDs((currentFiles) => [
         ...currentFiles,
-        ...fileIDs,
+        ...data.fileIDs,
       ]);
     };
 
@@ -197,7 +198,7 @@ export function FileList({
               className="h-56 flex relative justify-center items-center border overflow-hidden"
             >
               <div className="inset-0 absolute bg-background/30 opacity-0 hover:opacity-100 transition-all justify-center items-center flex">
-                <CopyUrl url={file.url}></CopyUrl>
+                <CopyUrl onClick={() => onMakeUrl(file.id)}></CopyUrl>
                 <DeleteFile
                   fileId={file.id}
                   onDeleteSuccess={handleFileDelete}

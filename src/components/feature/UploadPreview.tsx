@@ -2,11 +2,10 @@ import Uppy from "@uppy/core";
 
 import { Dialog, DialogContent, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { useUppyState } from "@/app/dashboard/hooks/useUppyState";
-import Image from "next/image";
 import { useState } from "react";
 import { Button } from "../ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react"
-import { LocalFileItem, RemoteFileItem } from "./FileItem";
+import { LocalFileItem } from "./FileItem";
 
 
 export function UploadPreview({ uppy }: { uppy: Uppy }) {
@@ -18,9 +17,6 @@ export function UploadPreview({ uppy }: { uppy: Uppy }) {
   const [index, setIndex] = useState(0)
 
   const file = files[index]
-
-  // 添加检查确保 file 和 file.data 存在
-  const isImage = file && file.data && file.data.type && file.data.type.startsWith("image");
 
   const clear = () => {
     files.map((file) => {
