@@ -1,14 +1,19 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { type HTMLAttributes } from "preact/compat";
-import { useRef } from "preact/hooks";
+import { Ref, type HTMLAttributes } from "preact/compat";
+import { MutableRef, useRef } from "preact/hooks";
 
 type CommonPreactComponentProps = {
   setChildrenContainer: (ele: HTMLElement | null) => void
 }
-export function UploadButton(props: HTMLAttributes<HTMLButtonElement> & CommonPreactComponentProps & { onFileChosed: (files: File | File[]) => void }) {
+
+export type UploadButtonProps = HTMLAttributes<HTMLButtonElement> & CommonPreactComponentProps & {
+  onFileChosed: (files: File | File[]) => void;
+  inputRef?: MutableRef<HTMLInputElement | null>
+}
+export function UploadButton(props: UploadButtonProps) {
   const inputRef = useRef<HTMLInputElement | null>(null);
 
-  const { onClick, children, onFileChosed, setChildrenContainer, ...otherProps } = props;
+  const { onClick, children, onFileChosed, setChildrenContainer, inputRef: inputRefFromProps, ...otherProps } = props;
 
   const handleClick = (e: MouseEvent) => {
     // 处理文件输入点击

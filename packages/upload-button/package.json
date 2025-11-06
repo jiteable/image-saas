@@ -21,9 +21,17 @@
     "@types/node": "^24.6.0",
     "typescript": "~5.9.3",
     "vite": "^7.1.7",
-    "tsup": "^8.5.0"
+    "tsup": "^8.5.0",
+        "@uppy/aws-s3": "^5.0.1",
+    "@uppy/core": "^5.1.0",
+    "@uppy/dashboard": "^5.0.2",
+    "@uppy/react": "^5.1.0"
   },
   "peerDependencies":{
-    "preact": "^10.27.2"
+    "preact": "^10.27.2",
+      "@uppy/aws-s3": "^5.0.1",
+    "@uppy/core": "^5.1.0",
+    "@uppy/dashboard": "^5.0.2",
+    "@uppy/react": "^5.1.0"
   }
 }
