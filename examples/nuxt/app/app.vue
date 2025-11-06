@@ -1,170 +1,74 @@
 <template>
-  <div class="container">
-    <VueUploadButton :onFileUploaded="onFileUploaded" :uploader="uploader" className="upload-button">
-      Click To Chose File
+  <div>
+    <VueUploadButton :onFileChosed="onFiles" :uploader="uploader">
+      Upload Files
     </VueUploadButton>
-    <VueDropzone :onFileUploaded="onFileUploaded" :onDraggingChange="onDraggingChanged" :uploader="uploader"
-      className="dropzone">
-      <div :className="dropzoneInnerClass">
-        {{ dragging ? "Drop Here to Upload" : "Drag File Here" }}
-      </div>
-    </VueDropzone>
-    <div class="preview" v-if="uploaded">
-      <button class="preview-close" @click="clearUploaded">X</button>
-      <div class="preview-overlay"></div>
-      <div class="preview-content">
-        <img :src="uploaded" />
-      </div>
-    </div>
+    <img v-if="uploaded" :src="uploaded" alt="Uploaded image" />
+    <p v-else>No image uploaded yet</p>
   </div>
 </template>
 
 <script setup>
-import "preact/debug";
-import { createApiClient } from "@image-sass/api";
-import { onMounted, ref, watchEffect } from "vue";
-import { UploadButtonWithUploader } from "@image-saas/upload-button";
-import { connect } from "@image-saas/preact-vue-connect";
+import { ref, onMounted } from 'vue';
+import { createApiClient } from '@image-sass/api';
+import { connect } from '@image-saas/preact-vue-connect'
+import { UploadButton } from '@image-saas/upload-button';
 import { createUploader } from "@image-saas/uploader";
-import { DropzoneWithUploader } from "@image-saas/dropzone";
 
-const VueUploadButton = connect(UploadButtonWithUploader);
-const VueDropzone = connect(DropzoneWithUploader);
+const VueUploadButton = connect(UploadButton)
+
+// 定义响应式变量来存储上传图片的URL
+const uploaded = ref('')
 
 const uploader = createUploader(async (file) => {
+  // 获取签名令牌
   const tokenResp = await fetch("/api/test");
   const token = await tokenResp.text();
 
+  // 创建 API 客户端
   const apiClient = createApiClient({ signedToken: token });
-  return apiClient.file.createPresignedUrl.mutate({
-    filename: file.data instanceof File ? file.data.name : "test",
-    contentType: file.data.type || "",
-    size: file.size,
+
+  // 调用 createPresignedUrl mutation
+  try {
+    const result = await apiClient.file.createPresignedUrl.mutate({
+      filename: file.data instanceof File ? file.data.name : "test",
+      contentType: file.data.type || "",
+      size: file.size,
+      appId: "9b122530-f22a-4a42-8a11-63f845e39f20" // 你需要替换为有效的 appId
+    });
+
+    return result;
+  } catch (error) {
+    console.error("Error creating presigned URL:", error);
+    throw error;
+  }
+});
+
+// 设置上传成功事件监听器
+onMounted(() => {
+  uploader.on('upload-success', (file, resp) => {
+    console.log('Upload successful, URL: ', resp.uploadURL);
+    // 更新 uploaded 变量以显示图片
+    uploaded.value = resp.uploadURL;
+  });
+
+  uploader.on('upload-error', (file, error) => {
+    console.error('Upload error:', error);
   });
 });
 
-const uploaded = ref("");
+function onFiles(files) {
+  uploader.addFiles(
+    files.map((file) => ({
+      data: file,
+      name: file.name,
+      type: file.type,
+      size: file.size,
+    }))
+  )
 
-function onFileUploaded(url) {
-  uploaded.value = url;
+  // 开始上传
+  uploader.upload()
 }
 
-function clearUploaded() {
-  uploaded.value = "";
-}
-
-const dragging = ref(false);
-
-watchEffect(() => {
-  console.log(dragging.value);
-});
-
-const dropzoneInnerClass = computed(() =>
-  dragging.value ? "dropzone-inner dragging" : "dropzone-inner"
-);
-
-function onDraggingChanged(flag) {
-  dragging.value = flag;
-}
 </script>
-
-<style>
-html,
-body {
-  margin: 0;
-  padding: 0;
-}
-
-.upload-button {
-  appearance: none;
-  padding: 8px;
-  border: 0;
-  border-radius: 4px;
-  background: #030303;
-  color: #efefef;
-  cursor: pointer;
-}
-
-.upload-button:hover {
-  background: #222222;
-  color: #efefef;
-}
-
-.dropzone {
-  border-style: dashed;
-  border-width: 2px;
-  width: 50vw;
-  height: 50vh;
-}
-
-.dropzone-inner {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-size: 24px;
-}
-
-.dropzone-inner.dragging {
-  background: #e6abab;
-}
-
-.container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  height: 100vh;
-  box-sizing: border-box;
-}
-
-.preview {
-  position: fixed;
-  inset: 0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.preview-overlay {
-  position: absolute;
-  inset: 0;
-  background: #030303;
-  opacity: 0.3;
-}
-
-.preview-content {
-  width: 70%;
-  height: 50%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.preview-content>img {
-  width: 100%;
-  z-index: 10;
-}
-
-.preview-close {
-  appearance: none;
-  width: 40px;
-  height: 40px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background: white;
-  position: absolute;
-  right: 10%;
-  top: 10%;
-  z-index: 10;
-  border-radius: 20px;
-  border: 0;
-}
-
-.preview-close:hover {
-  background: #eaeaea;
-}
-</style>

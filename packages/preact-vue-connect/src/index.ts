@@ -1,11 +1,11 @@
 import { ComponentType, render, h as hp, Attributes } from "preact";
-import { defineComponent, h as hv, ref, Teleport, watchEffect } from 'vue'
+import { defineComponent, ref, h as hv, watchEffect, Teleport } from 'vue'
 
 type CommonPreactComponentProps = {
   setChildrenContainer: (ele: HTMLElement) => void
 }
-export function connect<P>(component: ComponentType<P>): ReturnType<typeof defineComponent> {
-  return defineComponent<P>({
+export function connect<P extends CommonPreactComponentProps>(component: ComponentType<P>) {
+  return defineComponent({
     inheritAttrs: false,
     setup(props, { attrs, slots }) {
       const containerRef = ref()
@@ -13,7 +13,10 @@ export function connect<P>(component: ComponentType<P>): ReturnType<typeof defin
 
       watchEffect(() => {
         if (containerRef.value) {
-          render(hp(component, { ...attrs, setChildrenContainer: (ele: HTMLElement) => { childrenContainerRef.value = ele } } as unknown as P & Attributes), containerRef.value)
+          render(hp(component, {
+            ...attrs,
+            setChildrenContainer: (ele: HTMLElement) => { childrenContainerRef.value = ele }
+          } as unknown as P & Attributes), containerRef.value)
         }
       })
 

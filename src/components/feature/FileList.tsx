@@ -92,9 +92,11 @@ export function FileList({
     };
 
     const uploadProgressHandler = (data: any) => {
+      // 修复: 确保 data.fileIDs 存在且为数组后再使用
+      const fileIDs = Array.isArray(data.fileIDs) ? data.fileIDs : [];
       setUploadingFileIDs((currentFiles) => [
         ...currentFiles,
-        ...data.fileIDs,
+        ...fileIDs,
       ]);
     };
 

@@ -32,6 +32,7 @@ export const fileOpenRoutes = router({
         filename: z.string(),
         contentType: z.string(),
         size: z.number(),
+        appId: z.string(),
       })
     )
     .mutation(async ({ ctx, input }) => {
@@ -117,9 +118,17 @@ export const fileOpenRoutes = router({
         name: z.string(),
         path: z.string(),
         type: z.string(),
+        appId: z.string(), // 添加 appId 参数
       }),
     ).mutation(async ({ ctx, input }) => {
       const { user, app } = ctx
+
+      // 验证 app ID 是否匹配
+      if (app.id !== input.appId) {
+        throw new TRPCError({
+          code: 'FORBIDDEN'
+        })
+      }
 
       const url = new URL(input.path)
 
@@ -196,4 +205,3 @@ export const fileOpenRoutes = router({
   })
 
 })
-

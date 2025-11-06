@@ -1,6 +1,4 @@
 import { httpBatchLink, createTRPCClient } from "@trpc/client";
-import { createTRPCReact } from "@trpc/react-query";
-
 import { type OpenRouter } from "@/server/open-router";
 
 

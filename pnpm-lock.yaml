@@ -213,17 +213,14 @@ importers:
 
   examples/nuxt:
     dependencies:
-      '@image-saas/dropzone':
-        specifier: 'workspace: *'
-        version: link:../../packages/dropzone
       '@image-saas/preact-vue-connect':
-        specifier: 'workspace: *'
+        specifier: workspace:*
         version: link:../../packages/preact-vue-connect
       '@image-saas/upload-button':
         specifier: workspace:*
         version: link:../../packages/upload-button
       '@image-saas/uploader':
-        specifier: 'workspace: *'
+        specifier: workspace:*
         version: link:../../packages/uploader
       '@image-sass/api':
         specifier: workspace:*
@@ -231,6 +228,9 @@ importers:
       '@preact/preset-vite':
         specifier: ^2.9.3
         version: 2.10.2(@babel/core@7.28.5)(preact@10.27.2)(vite@7.1.12(@types/node@24.9.1)(jiti@2.6.1)(lightningcss@1.30.1)(terser@5.44.0)(tsx@4.20.6)(yaml@2.8.1))
+      '@trpc/client':
+        specifier: 11.6.0
+        version: 11.6.0(@trpc/server@11.6.0(typescript@5.9.3))(typescript@5.9.3)
       '@types/jsonwebtoken':
         specifier: ^9.0.5
         version: 9.0.10
@@ -275,27 +275,6 @@ importers:
         specifier: ^7.1.7
         version: 7.1.12(@types/node@24.9.1)(jiti@2.6.1)(lightningcss@1.30.1)(terser@5.44.0)(tsx@4.20.6)(yaml@2.8.1)
 
-  packages/dropzone:
-    devDependencies:
-      '@preact/preset-vite':
-        specifier: ^2.9.3
-        version: 2.10.2(@babel/core@7.28.5)(preact@10.27.2)(vite@7.1.12(@types/node@24.9.1)(jiti@2.6.1)(lightningcss@1.30.1)(terser@5.44.0)(tsx@4.20.6)(yaml@2.8.1))
-      '@uppy/core':
-        specifier: ^5.1.0
-        version: 5.1.0
-      preact:
-        specifier: ^10.27.2
-        version: 10.27.2
-      tsup:
-        specifier: ^8.5.0
-        version: 8.5.0(jiti@2.6.1)(postcss@8.5.6)(tsx@4.20.6)(typescript@5.9.3)(yaml@2.8.1)
-      typescript:
-        specifier: ~5.9.3
-        version: 5.9.3
-      vite:
-        specifier: ^7.1.7
-        version: 7.1.12(@types/node@24.9.1)(jiti@2.6.1)(lightningcss@1.30.1)(terser@5.44.0)(tsx@4.20.6)(yaml@2.8.1)
-
   packages/preact-vue-connect:
     devDependencies:
       preact:
@@ -308,11 +287,11 @@ importers:
   packages/upload-button:
     devDependencies:
       '@preact/preset-vite':
-        specifier: ^2.9.3
+        specifier: ^2.10.2
         version: 2.10.2(@babel/core@7.28.5)(preact@10.27.2)(vite@7.1.12(@types/node@24.9.1)(jiti@2.6.1)(lightningcss@1.30.1)(terser@5.44.0)(tsx@4.20.6)(yaml@2.8.1))
-      '@uppy/core':
-        specifier: ^5.1.0
-        version: 5.1.0
+      '@types/node':
+        specifier: ^24.6.0
+        version: 24.9.1
       preact:
         specifier: ^10.27.2
         version: 10.27.2
@@ -334,6 +313,12 @@ importers:
       '@uppy/core':
         specifier: ^5.1.0
         version: 5.1.0
+      '@uppy/dashboard':
+        specifier: ^5.0.2
+        version: 5.0.2(@uppy/core@5.1.0)
+      '@uppy/react':
+        specifier: ^5.1.0
+        version: 5.1.0(@uppy/core@5.1.0)(@uppy/dashboard@5.0.2(@uppy/core@5.1.0))(@uppy/screen-capture@5.0.1(@uppy/core@5.1.0))(@uppy/webcam@5.0.1(@uppy/core@5.1.0))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
 
 packages:
 
@@ -10395,7 +10380,7 @@ snapshots:
   '@types/jsonwebtoken@9.0.10':
     dependencies:
       '@types/ms': 2.1.0
-      '@types/node': 20.19.20
+      '@types/node': 24.9.1
 
   '@types/ms@2.1.0': {}
 
@@ -10410,7 +10395,7 @@ snapshots:
   '@types/nodemailer@7.0.3':
     dependencies:
       '@aws-sdk/client-sesv2': 3.916.0
-      '@types/node': 20.19.20
+      '@types/node': 24.9.1
     transitivePeerDependencies:
       - aws-crt
 
@@ -10420,7 +10405,7 @@ snapshots:
 
   '@types/pg@8.15.5':
     dependencies:
-      '@types/node': 20.19.20
+      '@types/node': 24.9.1
       pg-protocol: 1.10.3
       pg-types: 2.2.0
 

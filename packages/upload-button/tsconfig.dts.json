@@ -1,0 +1,11 @@
+{
+  "extends": "./tsconfig.app.json",
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    "jsxImportSource": "preact",
+    "emitDeclarationOnly": true,
+    "noEmit": false,
+    "declaration": true
+  },
+  "include": ["lib/**/*"]
+}
