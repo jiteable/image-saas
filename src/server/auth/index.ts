@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import CredentialsProvider from 'next-auth/providers/credentials'
 import { db } from '../db/db'
-import type { DefaultSession, DefaultUser, NextAuthOptions } from 'next-auth'
+import type { DefaultSession, NextAuthOptions } from 'next-auth'
 import {
   getServerSession as nextAuthGetServerSession,
 } from "next-auth";
@@ -180,33 +180,52 @@ export const authOptions: NextAuthOptions = {
   ],
   callbacks: {
     async jwt({ token, user }: { token: any; user: any }) {
-
       // 如果是初次登录（user存在），则从user对象中获取信息
       if (user) {
-        token.id = user.id
-        token.email = user.email
-        token.name = user.name
-        token.plan = user.plan
+        token.id = user.id;
+        token.email = user.email;
+        token.name = user.name;
+        token.plan = user.plan;
       }
-
-      return token
+      return token;
     },
     async session({ session, token }: { session: any; token: any }) {
+      // 每次获取会话时都从数据库中获取最新的用户信息
+      // 这样可以确保用户更新名称后，会话能获取到最新数据
+      if (token?.id) {
+        try {
+          const userResult = await db.select().from(users).where(eq(users.id, token.id));
+          if (userResult.length > 0) {
+            const user = userResult[0];
+            session.user = {
+              ...session.user,
+              id: user.id,
+              name: user.name,
+              email: user.email,
+              image: user.image,
+            };
+            session.plan = user.plan;
+            return session;
+          }
+        } catch (error) {
+          console.error("Error fetching user data:", error);
+        }
+      }
 
+      // 回退到原始逻辑
       if (token && session.user) {
         session.user.id = token.id;
         session.user.name = token.name || session.user.name;
         session.user.email = token.email || session.user.email;
         // image可能不存在，所以使用可选链
         session.user.image = token.image || session.user.image;
-        session.plan = token.plan
+        session.plan = token.plan;
       }
 
       console.log("Session callback - final session:", JSON.stringify(session, null, 2));
-      return session
+      return session;
     },
   },
-
 }
 
 export function getServerSession() {

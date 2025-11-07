@@ -11,7 +11,7 @@ export function UrlMaker({ id }: { id: string }) {
   const [url, setUrl] = useState(`/image/${id}?width=${width}&rotate=${rotate}`)
 
   return (
-    <div>
+    <div className="flex flex-col h-[60vh]">
       <div className="flex items-center justify-between mr-2">
         <div className="flex items-center gap-2">
           <span>Rotate:</span>
@@ -46,9 +46,9 @@ export function UrlMaker({ id }: { id: string }) {
           setPreviewRotate(0)
         }}>Make</Button>
       </div>
-      <div className="m-10">
+      <div className="flex-grow flex items-center justify-center my-10">
         <div className="flex justify-center items-center">
-          <img src={url} alt="generate url" className="max-w-full max-h-[60vh]" style={{ transform: `rotate(${previewRotate}deg)` }} />
+          <img src={url} alt="generate url" className="max-w-full max-h-[50vh]" style={{ transform: `rotate(${previewRotate}deg)` }} />
         </div>
       </div>
       <div className="flex justify-between items-center gap-2">

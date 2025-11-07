@@ -28,6 +28,7 @@ export default function LoginPage() {
     setIsLoading(true)
 
     try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const result: any = await signIn('credentials', {
         email,
         password,

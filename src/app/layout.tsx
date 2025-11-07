@@ -5,7 +5,6 @@ import { TRPCProvider } from "./TrpcProvider";
 import { Toaster } from "@/components/ui/sonner";
 import { ThemeProvider } from "@/app/dashboard/ThemeProvider";
 
-
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {

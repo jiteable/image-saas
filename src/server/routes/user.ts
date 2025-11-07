@@ -1,8 +1,10 @@
-
 import { Stripe } from 'stripe'
 import { protectedProcedure, router } from "../trip";
 import { db } from "../db/db";
 import { TRPCError } from '@trpc/server';
+import { users } from "../db/schema";
+import { eq } from "drizzle-orm";
+import { z } from "zod";
 
 export const userRoute = router({
 
@@ -49,4 +51,24 @@ export const userRoute = router({
     //   plan: "payed",
     // });
   }),
+
+  updateName: protectedProcedure
+    .input(z.object({
+      name: z.string().min(1, "Name cannot be empty").max(50, "Name too long")
+    }))
+    .mutation(async ({ ctx, input }) => {
+      const result = await db.update(users)
+        .set({ name: input.name })
+        .where(eq(users.id, ctx.session.user!.id))
+        .returning({ name: users.name });
+
+      if (result.length === 0) {
+        throw new TRPCError({
+          code: 'NOT_FOUND',
+          message: 'User not found'
+        });
+      }
+
+      return result[0];
+    }),
 });
