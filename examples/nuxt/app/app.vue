@@ -3,6 +3,11 @@
     <VueUploadButton :onFileUploaded="onFileUploaded" :uploader="uploader">
       asdasd
     </VueUploadButton>
+    <VueDropzone :onFileUploaded="onFileUploaded" :onDraggingChange="onDraggingChange" :uploader="uploader">
+      <div style="width: 200px; height: 200px; background-color: red;">
+
+      </div>
+    </VueDropzone>
     <img v-if="uploaded" :src="uploaded" alt="Uploaded image" />
     <p v-else>No image uploaded yet</p>
   </div>
@@ -14,8 +19,10 @@ import { createApiClient } from '@image-sass/api';
 import { connect } from '@image-saas/preact-vue-connect'
 import { createUploader } from "@image-saas/uploader";
 import { UploadButtonWithUploader } from '@image-saas/upload-button';
+import { DropzoneWithUploader } from '@image-saas/dropzone'
 
 const VueUploadButton = connect(UploadButtonWithUploader)
+const VueDropzone = connect(DropzoneWithUploader)
 
 // 定义响应式变量来存储上传图片的URL
 const uploaded = ref('')
@@ -47,5 +54,8 @@ function onFileUploaded(url) {
   uploaded.value = url;
 }
 
-
+function onDraggingChange(flag) {
+  // 可以在这里处理拖拽状态变化
+  console.log('Dragging state changed:', flag);
+}
 </script>

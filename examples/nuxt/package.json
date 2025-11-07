@@ -21,6 +21,7 @@
     "@trpc/client": "11.6.0",
     "@image-saas/upload-button": "workspace:*",
     "@image-saas/preact-vue-connect": "workspace:*",
-    "@image-saas/uploader": "workspace:*"
+    "@image-saas/uploader": "workspace:*",
+    "@image-saas/dropzone": "workspace:*"
   }
 }
