@@ -10,7 +10,7 @@ export const appRouter = router({
   apps: appsRoute,
   storages: storagesRoute,
   apiKeys: apiKeysRoute,
-  user: userRoute
+  user: userRoute,
 })
 
 export type AppRouter = typeof appRouter

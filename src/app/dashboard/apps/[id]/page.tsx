@@ -1,7 +1,6 @@
 "use client";
 
 import { Uppy } from "@uppy/core"
-import AWSS3 from "@uppy/aws-s3"
 import { ReactNode, useState } from "react";
 import { trpcClientReact, trpcPureClient } from "@/utils/api"
 import { Button } from "@/components/ui/button";
@@ -18,6 +17,7 @@ import { UpgradeDialog } from "./Upgrade";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { UrlMaker } from "./UrlMaker";
+import { createUppyInstance } from "@/lib/uppy";
 export default function AppPage({ params }: { params: Promise<{ id: string }> }) { // 添加 async 关键字
 
   const { id: appId } = use(params);
@@ -41,28 +41,12 @@ export default function AppPage({ params }: { params: Promise<{ id: string }> })
   const [showUpgrade, setShowUpgrade] = useState(false)
 
   const [uppy] = useState<Uppy>(() => {
-    const uppyInstance = new Uppy();
-    uppyInstance.use(AWSS3, {
-      shouldUseMultipart: false,
-      async getUploadParameters(file) {
-
-        try {
-          const result = await trpcPureClient.file.createPresignedUrl.mutate({
-            filename:
-              file.data instanceof File ? file.data.name : "test",
-            contentType: file.data.type || "",
-            size: file.size ?? 0,
-            appId: appId
-          })
-
-          return result
-        } catch (err) {
-          setShowUpgrade(true)
-          throw err
-        }
+    return createUppyInstance({
+      appId: appId,
+      onUploadError: (err) => {
+        setShowUpgrade(true);
       }
-    })
-    return uppyInstance;
+    });
   });
 
   usePasteFile({

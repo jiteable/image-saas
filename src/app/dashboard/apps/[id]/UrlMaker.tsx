@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import copy from "copy-to-clipboard";
 import { toast } from "sonner";
 export function UrlMaker({ id }: { id: string }) {
-  const [width, setWidth] = useState(100)
+  const [width, setWidth] = useState(200)
   const [rotate, setRotate] = useState(0)
   const [previewRotate, setPreviewRotate] = useState(0)
   const [url, setUrl] = useState(`/image/${id}?width=${width}&rotate=${rotate}`)
@@ -35,7 +35,7 @@ export function UrlMaker({ id }: { id: string }) {
             id="widthInput"
             value={width}
             max={2000}
-            min={100}
+            min={200}
             className="input input-bordered input-sm"
             onChange={(e) => setWidth(Number(e.target.value))}
           />

@@ -1,7 +1,6 @@
 import { trpcClientReact } from "@/utils/api";
 import { Button } from "../ui/button";
-import { Trash2, Copy } from "lucide-react";
-import copy from "copy-to-clipboard";
+import { Trash2, Copy, Crop } from "lucide-react";
 import { toast } from "sonner";
 
 export function DeleteFile({
@@ -38,6 +37,12 @@ export function CopyUrl({ onClick }: { onClick: (e: React.MouseEvent<HTMLButtonE
   </Button >
 }
 
+export function CropImage({ onClick }: { onClick: (e: React.MouseEvent<HTMLButtonElement>) => void }) {
+
+  return <Button variant="ghost" onClick={onClick}>
+    <Crop />
+  </Button >
+}
 
 
 

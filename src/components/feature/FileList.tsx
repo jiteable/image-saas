@@ -9,7 +9,8 @@ import { inferRouterOutputs } from "@trpc/server";
 import { Button } from "../ui/button";
 import { ScrollArea } from "../ui/scroll-area";
 import { type FilesOrderByColumn } from "@/server/routes/file";
-import { CopyUrl, DeleteFile } from "./FileItemAction";
+import { CopyUrl, DeleteFile, CropImage } from "./FileItemAction";
+import ImageCropperModal from "./ImageCropModal";
 
 type FileResult = inferRouterOutputs<AppRouter>["file"]["listFiles"];
 
@@ -24,6 +25,8 @@ export function FileList({
   appId: string;
   onMakeUrl: (id: string) => void;
 }) {
+  const [cropImageData, setCropImageData] = useState<{ url: string; name: string } | null>(null);
+
   const queryKey = {
     limit: 8,
     orderBy,
@@ -169,6 +172,12 @@ export function FileList({
     );
   };
 
+  // 处理裁剪图像事件
+  const handleCropImage = (fileId: string, fileName: string) => {
+    const imageUrl = `/image/${fileId}`;
+    setCropImageData({ url: imageUrl, name: fileName });
+  };
+
   return (
     <ScrollArea className="h-full @container">
       {isPending && <div className="text-center">Loading</div>}
@@ -200,7 +209,17 @@ export function FileList({
               className="h-56 flex relative justify-center items-center border overflow-hidden"
             >
               <div className="inset-0 absolute bg-background/30 opacity-0 hover:opacity-100 transition-all justify-center items-center flex">
-                <CopyUrl onClick={() => onMakeUrl(file.id)}></CopyUrl>
+                <CropImage onClick={(e) => {
+                  // 阻止事件冒泡到父级元素
+                  e.stopPropagation();
+                  // 触发图像裁剪操作
+                  handleCropImage(file.id, file.name);
+                }}></CropImage>
+                <CopyUrl onClick={(e) => {
+                  // 阻止事件冒泡到父级元素
+                  e.stopPropagation();
+                  onMakeUrl(file.id);
+                }}></CopyUrl>
                 <DeleteFile
                   fileId={file.id}
                   onDeleteSuccess={handleFileDelete}
@@ -215,6 +234,18 @@ export function FileList({
           );
         })}
       </div>
+      {cropImageData && (
+        <ImageCropperModal
+          uppy={uppy}
+          image={cropImageData.url}
+          onClose={() => setCropImageData(null)}
+          onUploadSuccess={(imageUrl) => {
+            setCropImageData(null);
+            // 可以在这里添加上传成功后的处理逻辑
+            console.log('Image uploaded successfully:', imageUrl);
+          }}
+        />
+      )}
       <div
         className={cn(
           " justify-center p-8 hidden",

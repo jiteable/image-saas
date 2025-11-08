@@ -5,7 +5,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { trpcClientReact } from "@/utils/api";
 
 export function UpgradeDialog({
   open,

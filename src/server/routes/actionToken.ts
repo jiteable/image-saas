@@ -1,9 +1,8 @@
-import { protectedProcedure, publicProcedure, router } from "../trip";
+import { publicProcedure, router } from "../trip";
 import { db } from "../db/db";
 import z from "zod"
-import { actionToken, apiKeys } from "../db/schema";
-import { v4 as uuid } from "uuid";
-import { and, eq, gte, lt } from "drizzle-orm";
+import { actionToken } from "../db/schema";
+import { and, eq } from "drizzle-orm";
 
 export const actionTokenRoute = router({
   // 创建或更新操作令牌
